@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRO FUTSAL / MINI SOCCER SCOREBOARD — Premium Dark Neon</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Chakra Petch & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            digital: ['"Chakra Petch"', 'monospace'],
+            display: ['"Outfit"', 'sans-serif'],
+          },
+          colors: {
+            neon: {
+              cyan: '#00f3ff',
+              pink: '#ff007f',
+              green: '#00ff66',
+              amber: '#ffb800',
+              red: '#ff1e42',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --stage-w: 1600;
+      --stage-h: 1200;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 50% 20%, #111827 0%, #050811 55%, #020307 100%);
+      color: #f8fafc;
+      font-family: 'Outfit', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Ambient Neon Grid Background */
+    .cyber-bg {
+      background-image:
+        radial-gradient(circle at 18% 30%, rgba(0, 243, 255, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 82% 30%, rgba(255, 0, 127, 0.08) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    /* 1600x1200 Responsive Broadcast Stage */
+    #broadcast-stage {
+      width: 1600px;
+      height: 1200px;
+      position: relative;
+      transform-origin: center center;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 90px rgba(0, 0, 0, 0.9), inset 0 0 60px rgba(0, 243, 255, 0.04);
+    }
+
+    /* Neon LED Text Glows */
+    .neon-score-home {
+      font-family: 'Chakra Petch', monospace;
+      color: #e0ffff;
+      text-shadow:
+        0 0 12px rgba(0, 243, 255, 0.9),
+        0 0 30px rgba(0, 243, 255, 0.65),
+        0 0 65px rgba(0, 243, 255, 0.4),
+        0 0 110px rgba(0, 243, 255, 0.25);
+    }
+
+    .neon-score-away {
+      font-family: 'Chakra Petch', monospace;
+      color: #ffe5f2;
+      text-shadow:
+        0 0 12px rgba(255, 0, 127, 0.9),
+        0 0 30px rgba(255, 0, 127, 0.65),
+        0 0 65px rgba(255, 0, 127, 0.4),
+        0 0 110px rgba(255, 0, 127, 0.25);
+    }
+
+    .neon-timer {
+      font-family: 'Chakra Petch', monospace;
+      color: #ffffff;
+      text-shadow:
+        0 0 10px rgba(0, 255, 102, 0.85),
+        0 0 28px rgba(0, 255, 102, 0.5),
+        0 0 60px rgba(0, 255, 102, 0.25);
+    }
+
+    .neon-timer-danger {
+      font-family: 'Chakra Petch', monospace;
+      color: #ffe4e8;
+      text-shadow:
+        0 0 12px rgba(255, 30, 66, 0.95),
+        0 0 32px rgba(255, 30, 66, 0.7),
+        0 0 70px rgba(255, 30, 66, 0.45);
+    }
+
+    .neon-box {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.88) 0%, rgba(7, 11, 22, 0.95) 100%);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    }
+
+    /* Fullscreen Broadcast Overlay Animation (Left to Right Sweep) */
+    .overlay-sweep {
+      transform: translateX(-105%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+    }
+
+    .overlay-sweep.active {
+      transform: translateX(0%);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .overlay-sweep.exit-right {
+      transform: translateX(105%);
+      opacity: 0;
+    }
+
+    /* Penalty Dot Glows */
+    .pen-dot-goal {
+      background: #00ff66;
+      box-shadow: 0 0 16px #00ff66, 0 0 30px rgba(0, 255, 102, 0.6);
+      border-color: #86efac;
+    }
+
+    .pen-dot-miss {
+      background: #ff1e42;
+      box-shadow: 0 0 16px #ff1e42, 0 0 30px rgba(255, 30, 66, 0.6);
+      border-color: #fda4af;
+    }
+
+    /* Custom Scrollbar for Modals / Remote */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 243, 255, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 243, 255, 0.65);
+    }
+
+    @keyframes pulse-fast {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    .animate-goal-text {
+      animation: pulse-fast 0.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================================
+       1600x1200 BROADCAST DISPLAY STAGE (4:3 HI-RES)
+  ========================================================================== -->
+  <div id="broadcast-stage" class="cyber-bg flex flex-col justify-between p-10 select-none">
+
+    <!-- TOP HEADER: Minimalist Trophy Center + Right Action Icons -->
+    <header class="relative flex items-center justify-between h-20 px-6 rounded-2xl neon-box border-white/10">
+      <!-- Left Status Badge: Sync / Mode -->
+      <div class="flex items-center gap-3">
+        <span id="sync-indicator" class="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]"></span>
+        <span id="sync-label" class="text-xs font-semibold tracking-widest uppercase text-slate-300">
+          LOCAL + BROADCAST SYNC READY
+        </span>
+        <span id="room-badge" class="px-2.5 py-1 text-xs font-digital font-bold rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+          ROOM: ARENA-01
+        </span>
+      </div>
+
+      <!-- Center Minimalist Trophy Icon & Competition Title -->
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400/20 to-yellow-600/20 border border-amber-400/40 flex items-center justify-center shadow-[0_0_25px_rgba(251,191,36,0.3)]">
+          <i data-lucide="trophy" class="w-6 h-6 text-amber-400"></i>
+        </div>
+        <div class="text-center">
+          <div id="tournament-title" class="text-sm font-extrabold tracking-[0.28em] uppercase text-amber-300/90">
+            PRO FUTSAL CHAMPIONSHIP
+          </div>
+          <div class="text-[11px] tracking-[0.2em] text-slate-400 uppercase">
+            OFFICIAL DIGITAL SCOREBOARD
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Right Control Icons: Statistik, Remote, Buzzer, Bantuan Keyboard -->
+      <div class="flex items-center gap-2.5">
+        <button id="btn-open-stats" title="Statistik Pertandingan (In The Match)"
+          class="group flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-cyan-500/20 border border-white/10 hover:border-cyan-400/50 transition-all">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-semibold tracking-wider text-slate-200">STATISTIK</span>
+        </button>
+
+        <button id="btn-open-remote" title="Panel Remote Controller (M)"
+          class="group flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-pink-500/20 border border-white/10 hover:border-pink-400/50 transition-all">
+          <i data-lucide="Sliders" class="w-5 h-5 text-pink-400 group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-semibold tracking-wider text-slate-200">REMOTE</span>
+        </button>
+
+        <button id="btn-sound-buzzer" title="Bunyikan Buzzer Horn"
+          class="group flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-amber-500/20 border border-white/10 hover:border-amber-400/50 transition-all">
+          <i data-lucide="volume-2" class="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform"></i>
+          <span class="text-xs font-semibold tracking-wider text-slate-200">BUZZER</span>
+        </button>
+
+        <button id="btn-open-shortcuts" title="Bantuan Shortcut Keyboard (?)"
+          class="group flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800/80 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-400/50 transition-all">
+          <i data-lucide="keyboard" class="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN ARENA DISPLAY GRID: Left (Home) | Center (Timer & Period) | Right (Away) -->
+    <main class="grid grid-cols-12 gap-8 items-center my-auto py-4">
+
+      <!-- ======================== HOME TEAM (LEFT) ======================== -->
+      <section class="col-span-4 flex flex-col items-center justify-between neon-box rounded-3xl p-8 border-t-4 border-t-cyan-400 relative overflow-hidden min-h-[820px]">
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Home Badge + Team Logo -->
+        <div class="flex flex-col items-center w-full">
+          <span class="px-4 py-1 rounded-full text-xs font-bold tracking-[0.25em] uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-400/30 mb-5">
+            HOME TEAM
+          </span>
+
+          <div class="w-44 h-44 rounded-3xl bg-slate-900/90 border-2 border-cyan-400/30 shadow-[0_0_40px_rgba(0,243,255,0.18)] flex items-center justify-center p-4 mb-5 overflow-hidden">
+            <img id="display-home-logo" src="" alt="Home Logo" class="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(0,243,255,0.5)]" />
+          </div>
+
+          <h2 id="display-home-name" class="text-4xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_2px_10px_rgba(0,243,255,0.35)] line-clamp-1">
+            GARUDA MUDA FC
+          </h2>
+        </div>
+
+        <!-- Giant Neon LED Score -->
+        <div class="my-2 flex items-center justify-center">
+          <div id="display-home-score" class="text-[210px] leading-none font-bold neon-score-home select-none">
+            0
+          </div>
+        </div>
+
+        <!-- Quick Foul / Card Pills -->
+        <div class="flex items-center gap-4 mb-3">
+          <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/30">
+            <span class="w-3 h-4 rounded-sm bg-amber-400 inline-block shadow-[0_0_8px_#fbbf24]"></span>
+            <span class="text-xs uppercase tracking-wider text-slate-300">Kuning:</span>
+            <span id="display-home-yc" class="font-digital font-bold text-lg text-amber-300">0</span>
+          </div>
+          <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30">
+            <span class="w-3 h-4 rounded-sm bg-rose-500 inline-block shadow-[0_0_8px_#f43f5e]"></span>
+            <span class="text-xs uppercase tracking-wider text-slate-300">Merah:</span>
+            <span id="display-home-rc" class="font-digital font-bold text-lg text-rose-400">0</span>
+          </div>
+        </div>
+
+        <!-- Penalty Shootout 7-Dot Indicator Grid (Home) -->
+        <div id="home-penalty-panel" class="w-full pt-4 border-t border-white/10 transition-opacity duration-300">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-300/90">ADU PENALTI (7 PENENDANG)</span>
+            <span id="display-home-pen-score" class="text-sm font-digital font-bold text-cyan-300">0 / 0</span>
+          </div>
+          <div id="display-home-pen-dots" class="grid grid-cols-7 gap-2.5">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== CENTER TIMER & PERIOD ======================== -->
+      <section class="col-span-4 flex flex-col items-center justify-center gap-7">
+
+        <!-- Digital Countdown Timer Box -->
+        <div class="w-full neon-box rounded-3xl p-8 border-2 border-emerald-400/30 shadow-[0_0_60px_rgba(0,255,102,0.12)] flex flex-col items-center relative overflow-hidden">
+          <div class="flex items-center gap-2.5 mb-2">
+            <span id="timer-status-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+            <span id="timer-status-text" class="text-xs font-bold tracking-[0.3em] uppercase text-slate-400">
+              READY / PAUSED
+            </span>
+          </div>
+
+          <div id="display-timer" class="text-[128px] leading-none font-bold tracking-wider neon-timer my-2">
+            20:00
+          </div>
+
+          <!-- Quick On-Screen Timer Controls for Convenience -->
+          <div class="flex items-center gap-3 mt-4">
+            <button id="stage-btn-toggle-timer" class="px-5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-300 text-xs font-bold tracking-widest uppercase transition">
+              START / PAUSE (SPACE)
+            </button>
+            <button id="stage-btn-reset-timer" class="px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-white/15 text-slate-300 text-xs font-bold tracking-widest uppercase transition">
+              RESET
+            </button>
+          </div>
+        </div>
+
+        <!-- Period / Babak Indicator Box -->
+        <div class="w-full neon-box rounded-3xl p-7 border border-white/15 flex flex-col items-center">
+          <span class="text-xs font-bold tracking-[0.35em] uppercase text-slate-400 mb-2">
+            BABAK PERTANDINGAN
+          </span>
+          <div class="flex items-center gap-6">
+            <div class="px-5 py-1.5 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-300 font-bold text-sm tracking-widest uppercase" id="display-period-label">
+              BABAK KE-
+            </div>
+            <div id="display-period" class="text-8xl leading-none font-digital font-bold text-amber-400 drop-shadow-[0_0_25px_rgba(251,191,36,0.7)]">
+              1
+            </div>
+          </div>
+          <div id="penalty-mode-banner" class="hidden mt-4 px-4 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-300 text-xs font-extrabold tracking-[0.25em] uppercase animate-pulse">
+            ★ MODE ADU PENALTI AKTIF ★
+          </div>
+        </div>
+
+        <!-- Live Match Possession & AI Tactical Ticker -->
+        <div class="w-full neon-box rounded-3xl p-6 border border-white/10">
+          <div class="flex items-center justify-between text-xs font-bold tracking-wider uppercase text-slate-400 mb-2">
+            <span class="text-cyan-300" id="mini-poss-home">50%</span>
+            <span class="tracking-[0.25em] text-slate-300">BALL POSSESSION</span>
+            <span class="text-pink-400" id="mini-poss-away">50%</span>
+          </div>
+          <div class="w-full h-3.5 rounded-full bg-slate-800 overflow-hidden flex p-0.5 border border-white/10">
+            <div id="mini-poss-bar-home" class="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 rounded-l-full transition-all duration-500" style="width: 50%"></div>
+            <div id="mini-poss-bar-away" class="h-full bg-gradient-to-l from-pink-500 to-rose-400 rounded-r-full transition-all duration-500" style="width: 50%"></div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-xs text-slate-300 truncate">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-400 shrink-0"></i>
+              <span id="ai-ticker-text" class="truncate">Tekan tombol Remote (M) untuk analisis taktis AI & kontrol penuh.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== AWAY TEAM (RIGHT) ======================== -->
+      <section class="col-span-4 flex flex-col items-center justify-between neon-box rounded-3xl p-8 border-t-4 border-t-pink-500 relative overflow-hidden min-h-[820px]">
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Away Badge + Team Logo -->
+        <div class="flex flex-col items-center w-full">
+          <span class="px-4 py-1 rounded-full text-xs font-bold tracking-[0.25em] uppercase bg-pink-500/15 text-pink-300 border border-pink-400/30 mb-5">
+            AWAY TEAM
+          </span>
+
+          <div class="w-44 h-44 rounded-3xl bg-slate-900/90 border-2 border-pink-500/30 shadow-[0_0_40px_rgba(255,0,127,0.18)] flex items-center justify-center p-4 mb-5 overflow-hidden">
+            <img id="display-away-logo" src="" alt="Away Logo" class="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,0,127,0.5)]" />
+          </div>
+
+          <h2 id="display-away-name" class="text-4xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_2px_10px_rgba(255,0,127,0.35)] line-clamp-1">
+            BINTANG TIMUR FC
+          </h2>
+        </div>
+
+        <!-- Giant Neon LED Score -->
+        <div class="my-2 flex items-center justify-center">
+          <div id="display-away-score" class="text-[210px] leading-none font-bold neon-score-away select-none">
+            0
+          </div>
+        </div>
+
+        <!-- Quick Foul / Card Pills -->
+        <div class="flex items-center gap-4 mb-3">
+          <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/30">
+            <span class="w-3 h-4 rounded-sm bg-amber-400 inline-block shadow-[0_0_8px_#fbbf24]"></span>
+            <span class="text-xs uppercase tracking-wider text-slate-300">Kuning:</span>
+            <span id="display-away-yc" class="font-digital font-bold text-lg text-amber-300">0</span>
+          </div>
+          <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30">
+            <span class="w-3 h-4 rounded-sm bg-rose-500 inline-block shadow-[0_0_8px_#f43f5e]"></span>
+            <span class="text-xs uppercase tracking-wider text-slate-300">Merah:</span>
+            <span id="display-away-rc" class="font-digital font-bold text-lg text-rose-400">0</span>
+          </div>
+        </div>
+
+        <!-- Penalty Shootout 7-Dot Indicator Grid (Away) -->
+        <div id="away-penalty-panel" class="w-full pt-4 border-t border-white/10 transition-opacity duration-300">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-[0.2em] text-pink-300/90">ADU PENALTI (7 PENENDANG)</span>
+            <span id="display-away-pen-score" class="text-sm font-digital font-bold text-pink-300">0 / 0</span>
+          </div>
+          <div id="display-away-pen-dots" class="grid grid-cols-7 gap-2.5">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER SHORTCUT BAR -->
+    <footer class="h-14 px-6 rounded-2xl neon-box border-white/10 flex items-center justify-between text-xs text-slate-400">
+      <div class="flex items-center gap-4 flex-wrap">
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-white/15 font-digital">SPACE</kbd> Start/Pause</span>
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-white/15 font-digital">Q/A</kbd> Skor Home</span>
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-pink-300 border border-white/15 font-digital">P/L</kbd> Skor Away</span>
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-amber-300 border border-white/15 font-digital">K/J</kbd> Babak</span>
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-emerald-300 border border-white/15 font-digital">T/G</kbd> Pen. Home</span>
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-emerald-300 border border-white/15 font-digital">Y/H</kbd> Pen. Away</span>
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-yellow-300 border border-white/15 font-digital">Z/X</kbd> Kuning</span>
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-rose-400 border border-white/15 font-digital">C/V</kbd> Merah</span>
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-purple-300 border border-white/15 font-digital">PgUp/PgDn</kbd> Substitusi</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-white border border-white/20 font-digital">M</kbd> Remote Panel</span>
+      </div>
+    </footer>
+
+    <!-- =======================================================================
+         4. FULLSCREEN ANIMATED POP-UP OVERLAYS (LEFT-TO-RIGHT SWEEP)
+    ======================================================================== -->
+
+    <!-- OVERLAY: GOAL / KARTU / SUBSTITUSI / WAKTU HABIS -->
+    <div id="broadcast-overlay" class="overlay-sweep absolute inset-0 z-40 flex items-center justify-center bg-slate-950/92 backdrop-blur-xl p-12">
+      <!-- Dynamic Content Injected by JS -->
+      <div id="broadcast-overlay-content" class="w-full max-w-5xl"></div>
+    </div>
+
+  </div><!-- /#broadcast-stage -->
+
+  <!-- =========================================================================
+       5. MODAL STATISTIK LENGKAP ("IN THE MATCH")
+  ========================================================================== -->
+  <div id="modal-stats" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-6">
+    <div class="w-full max-w-4xl neon-box rounded-3xl border border-cyan-400/30 p-8 shadow-2xl relative overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-6 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400/40">
+            <i data-lucide="bar-chart-3" class="w-6 h-6 text-cyan-300"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-black tracking-[0.2em] uppercase text-white">IN THE MATCH — STATISTICS</h3>
+            <p class="text-xs text-slate-400 tracking-wider uppercase">Perbandingan Statistik Real-Time Pertandingan</p>
+          </div>
+        </div>
+        <button id="btn-close-stats" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-white/10 transition">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Top Score Summary -->
+      <div class="grid grid-cols-3 items-center py-6 px-8 my-5 rounded-2xl bg-slate-900/90 border border-white/10">
+        <div class="flex items-center gap-4">
+          <img id="stats-home-logo" src="" alt="Home" class="w-16 h-16 object-contain" />
+          <div>
+            <div class="text-xs text-cyan-400 font-bold tracking-widest uppercase">HOME</div>
+            <div id="stats-home-name" class="text-xl font-black uppercase text-white">GARUDA MUDA FC</div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-6">
+          <span id="stats-home-score" class="text-6xl font-digital font-bold text-cyan-300">0</span>
+          <span class="text-2xl font-bold text-slate-500">—</span>
+          <span id="stats-away-score" class="text-6xl font-digital font-bold text-pink-400">0</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-4 text-right">
+          <div>
+            <div class="text-xs text-pink-400 font-bold tracking-widest uppercase">AWAY</div>
+            <div id="stats-away-name" class="text-xl font-black uppercase text-white">BINTANG TIMUR FC</div>
+          </div>
+          <img id="stats-away-logo" src="" alt="Away" class="w-16 h-16 object-contain" />
+        </div>
+      </div>
+
+      <!-- Comparison Bars Container -->
+      <div id="stats-bars-container" class="space-y-5 py-2">
+        <!-- Populated dynamically via renderStatsModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SHORTCUT KEYBOARD HELP MODAL
+  ========================================================================== -->
+  <div id="modal-shortcuts" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-6">
+    <div class="w-full max-w-3xl neon-box rounded-3xl border border-emerald-400/30 p-8 shadow-2xl">
+      <div class="flex items-center justify-between pb-5 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/40">
+            <i data-lucide="keyboard" class="w-6 h-6 text-emerald-300"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-black tracking-wider uppercase text-white">SHORTCUT KEYBOARD OPERATOR</h3>
+            <p class="text-xs text-slate-400">Kontrol cepat pertandingan tanpa menyentuh mouse</p>
+          </div>
+        </div>
+        <button id="btn-close-shortcuts" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-white/10">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mt-6 text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Start / Pause Timer</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-emerald-300 font-digital font-bold border border-emerald-500/30">Spasi</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Buka / Tutup Panel Remote</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-pink-300 font-digital font-bold border border-pink-500/30">M / H*</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Tambah / Kurang Waktu (Menit)</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-cyan-300 font-digital font-bold border border-cyan-500/30">↑ / ↓</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Tambah / Kurang Waktu (Detik)</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-cyan-300 font-digital font-bold border border-cyan-500/30">→ / ←</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Tambah / Kurang Skor Home</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-cyan-300 font-digital font-bold border border-cyan-500/30">Q / A</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Tambah / Kurang Skor Away</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-pink-300 font-digital font-bold border border-pink-500/30">P / L</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Tambah / Kurang Babak (Period)</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-amber-300 font-digital font-bold border border-amber-500/30">K / J</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Gol / Gagal Penalti Home</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-emerald-300 font-digital font-bold border border-emerald-500/30">T / G</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Gol / Gagal Penalti Away</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-emerald-300 font-digital font-bold border border-emerald-500/30">Y / H</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Kartu Kuning (Home / Away)</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-amber-300 font-digital font-bold border border-amber-500/30">Z / X</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Kartu Merah (Home / Away)</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-rose-400 font-digital font-bold border border-rose-500/30">C / V</kbd>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
+          <span class="text-slate-300">Substitusi Pemain (Home / Away)</span>
+          <kbd class="px-3 py-1 rounded bg-slate-800 text-purple-300 font-digital font-bold border border-purple-500/30">PageUp / PageDown</kbd>
+        </div>
+      </div>
+      <p class="mt-4 text-xs text-slate-400">
+        *Catatan: Saat <strong>Mode Adu Penalti</strong> aktif, tombol <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-white">H</kbd> mencatat Gagal Penalti Away. Saat Mode Penalti nonaktif (atau menekan <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-white">M</kbd> kapan saja), membuka/menutup Panel Remote Controller.
+      </p>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       2. REMOTE CONTROLLER & OPERATOR PANEL DRAWER/MODAL (M / H)
+  ========================================================================== -->
+  <div id="modal-remote" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-lg p-4 md:p-6">
+    <div class="w-full max-w-7xl h-[92vh] neon-box rounded-3xl border border-pink-500/30 flex flex-col overflow-hidden shadow-2xl">
+
+      <!-- Remote Top Bar -->
+      <div class="flex flex-wrap items-center justify-between px-6 py-4 bg-slate-900/90 border-b border-white/10 gap-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-xl bg-pink-500/20 border border-pink-400/40">
+            <i data-lucide="radio" class="w-6 h-6 text-pink-400"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-black tracking-wider uppercase text-white">OPERATOR REMOTE CONTROLLER & MANAGEMENT</h2>
+            <p class="text-xs text-slate-400">Sinkronisasi Real-Time (Firebase Firestore + BroadcastChannel) • Tekan <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-pink-300">M</kbd> untuk tutup</p>
+          </div>
+        </div>
+
+        <!-- Remote Navigation Tabs -->
+        <div class="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-2xl border border-white/10">
+          <button data-tab="tab-live" class="remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-500 text-slate-950 transition">
+            1. Live Match & Timer
+          </button>
+          <button data-tab="tab-teams" class="remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition">
+            2. Manajemen Tim & 9 Pemain
+          </button>
+          <button data-tab="tab-stats" class="remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition">
+            3. Statistik Pertandingan
+          </button>
+          <button data-tab="tab-ai" class="remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition">
+            4. AI Gemini & Firebase Sync
+          </button>
+        </div>
+
+        <button id="btn-close-remote" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-white/10 transition">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Remote Body Content -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+        <!-- ======================= TAB 1: LIVE MATCH & TIMER ======================= -->
+        <div id="tab-live" class="remote-tab-pane space-y-6">
+          <!-- Timer & Period Row -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Timer Controller -->
+            <div class="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">KONTROL WAKTU (TIMER)</span>
+                <span id="remote-timer-preview" class="text-2xl font-digital font-bold text-white">20:00</span>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2.5">
+                <button id="remote-btn-start" class="py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition">
+                  ▶ START
+                </button>
+                <button id="remote-btn-pause" class="py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider transition">
+                  ⏸ PAUSE
+                </button>
+                <button id="remote-btn-reset" class="py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider border border-white/15 transition">
+                  ↺ RESET
+                </button>
+              </div>
+
+              <!-- Set Manual Minutes & Seconds -->
+              <div class="pt-3 border-t border-white/10">
+                <label class="block text-xs text-slate-400 mb-2">Set Timer Manual (Menit & Detik):</label>
+                <div class="flex items-center gap-2">
+                  <input id="input-timer-min" type="number" min="0" max="99" value="20" class="w-20 px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-center font-digital text-lg text-white" />
+                  <span class="font-bold text-slate-400">:</span>
+                  <input id="input-timer-sec" type="number" min="0" max="59" value="0" class="w-20 px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-center font-digital text-lg text-white" />
+                  <button id="remote-btn-set-timer" class="flex-1 py-2.5 px-4 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/35 text-cyan-300 border border-cyan-400/40 text-xs font-bold uppercase tracking-wider transition">
+                    TERAPKAN WAKTU
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Period & Penalty Mode Controller -->
+            <div class="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-widest text-amber-400">BABAK & MODE PENALTI</span>
+                <span id="remote-period-preview" class="text-2xl font-digital font-bold text-amber-300">Babak 1</span>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <button id="remote-period-minus" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 font-bold text-sm">
+                  - Babak (J)
+                </button>
+                <button id="remote-period-plus" class="flex-1 py-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/40 text-amber-300 font-bold text-sm">
+                  + Babak (K)
+                </button>
+              </div>
+
+              <div class="pt-3 border-t border-white/10 flex flex-col gap-2.5">
+                <button id="remote-toggle-penalty" class="w-full py-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/40 text-rose-300 font-bold text-xs uppercase tracking-widest transition">
+                  ⚽ AKTIFKAN / NONAKTIFKAN MODE PENALTI
+                </button>
+                <button id="remote-reset-penalty" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-300 text-xs font-semibold uppercase tracking-wider transition">
+                  Reset 7 Indikator Penalti
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Buzzer & Broadcast Actions -->
+            <div class="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4">
+              <span class="text-xs font-bold uppercase tracking-widest text-cyan-400">OVERLAY & EFEK BROADCAST</span>
+              <div class="grid grid-cols-2 gap-2.5">
+                <button id="remote-btn-buzzer" class="py-3 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/40 text-amber-300 font-bold text-xs uppercase tracking-wider">
+                  🔊 BUNYIKAN BUZZER
+                </button>
+                <button id="remote-btn-timeup" class="py-3 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/40 text-rose-300 font-bold text-xs uppercase tracking-wider">
+                  ⏰ POP-UP WAKTU HABIS
+                </button>
+                <button id="remote-btn-hide-overlay" class="col-span-2 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 text-slate-200 font-bold text-xs uppercase tracking-wider">
+                  ✖ TUTUP OVERLAY AKTIF SEKARANG
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- HOME & AWAY ACTION TRIGGERS (GOAL, CARD, SUBSTITUTION, PENALTY) -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- HOME TEAM LIVE ACTIONS -->
+            <div class="p-6 rounded-2xl bg-slate-900/90 border-2 border-cyan-500/30 space-y-5">
+              <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <div>
+                  <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest">TIM HOME</span>
+                  <h3 id="remote-home-title" class="text-2xl font-black text-white uppercase">GARUDA MUDA FC</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="remote-home-score-minus" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 font-bold text-lg">- (A)</button>
+                  <span id="remote-home-score" class="text-4xl font-digital font-bold text-cyan-300 px-3">0</span>
+                  <button id="remote-home-score-plus" class="w-10 h-10 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-lg">+ (Q)</button>
+                </div>
+              </div>
+
+              <!-- Player Selector for Goal / Card -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Pilih Pemain Aksi (Gol / Kartu):</label>
+                  <select id="select-home-player" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-sm text-white"></select>
+                </div>
+                <div class="flex items-end gap-2">
+                  <button id="btn-home-goal-overlay" class="flex-1 py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider transition">
+                    ⚽ GOL + POP-UP (Q)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cards Trigger -->
+              <div class="grid grid-cols-2 gap-3">
+                <button id="btn-home-yc" class="py-2.5 px-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/35 border border-amber-400/40 text-amber-300 font-bold text-xs uppercase tracking-wider">
+                  🟨 KARTU KUNING (Z)
+                </button>
+                <button id="btn-home-rc" class="py-2.5 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 border border-rose-500/40 text-rose-300 font-bold text-xs uppercase tracking-wider">
+                  🟥 KARTU MERAH (C)
+                </button>
+              </div>
+
+              <!-- Substitution Selector -->
+              <div class="pt-3 border-t border-white/10 space-y-2">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">Pergantian Pemain (Substitusi — PageUp):</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <span class="text-[11px] text-emerald-400 block mb-1">Pemain Keluar (Hijau):</span>
+                    <select id="select-home-sub-out" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-emerald-500/40 text-xs text-white"></select>
+                  </div>
+                  <div>
+                    <span class="text-[11px] text-rose-400 block mb-1">Pemain Masuk (Merah):</span>
+                    <select id="select-home-sub-in" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-rose-500/40 text-xs text-white"></select>
+                  </div>
+                </div>
+                <button id="btn-home-sub" class="w-full py-2.5 rounded-xl bg-purple-500/25 hover:bg-purple-500/40 border border-purple-400/40 text-purple-200 font-bold text-xs uppercase tracking-wider">
+                  🔄 TAMPILKAN POP-UP SUBSTITUSI HOME (PageUp)
+                </button>
+              </div>
+
+              <!-- Penalty Buttons -->
+              <div class="pt-3 border-t border-white/10 flex items-center gap-3">
+                <button id="btn-home-pen-goal" class="flex-1 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-300 font-bold text-xs uppercase">
+                  ✔ GOL PENALTI HOME (T)
+                </button>
+                <button id="btn-home-pen-miss" class="flex-1 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/40 text-rose-300 font-bold text-xs uppercase">
+                  ✖ GAGAL PENALTI HOME (G)
+                </button>
+              </div>
+            </div>
+
+            <!-- AWAY TEAM LIVE ACTIONS -->
+            <div class="p-6 rounded-2xl bg-slate-900/90 border-2 border-pink-500/30 space-y-5">
+              <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <div>
+                  <span class="text-xs font-bold text-pink-400 uppercase tracking-widest">TIM AWAY</span>
+                  <h3 id="remote-away-title" class="text-2xl font-black text-white uppercase">BINTANG TIMUR FC</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="remote-away-score-minus" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 font-bold text-lg">- (L)</button>
+                  <span id="remote-away-score" class="text-4xl font-digital font-bold text-pink-400 px-3">0</span>
+                  <button id="remote-away-score-plus" class="w-10 h-10 rounded-xl bg-pink-500 hover:bg-pink-400 text-white font-black text-lg">+ (P)</button>
+                </div>
+              </div>
+
+              <!-- Player Selector for Goal / Card -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Pilih Pemain Aksi (Gol / Kartu):</label>
+                  <select id="select-away-player" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-sm text-white"></select>
+                </div>
+                <div class="flex items-end gap-2">
+                  <button id="btn-away-goal-overlay" class="flex-1 py-2.5 px-3 rounded-xl bg-pink-500 hover:bg-pink-400 text-white font-black text-xs uppercase tracking-wider transition">
+                    ⚽ GOL + POP-UP (P)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cards Trigger -->
+              <div class="grid grid-cols-2 gap-3">
+                <button id="btn-away-yc" class="py-2.5 px-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/35 border border-amber-400/40 text-amber-300 font-bold text-xs uppercase tracking-wider">
+                  🟨 KARTU KUNING (X)
+                </button>
+                <button id="btn-away-rc" class="py-2.5 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 border border-rose-500/40 text-rose-300 font-bold text-xs uppercase tracking-wider">
+                  🟥 KARTU MERAH (V)
+                </button>
+              </div>
+
+              <!-- Substitution Selector -->
+              <div class="pt-3 border-t border-white/10 space-y-2">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">Pergantian Pemain (Substitusi — PageDown):</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <span class="text-[11px] text-emerald-400 block mb-1">Pemain Keluar (Hijau):</span>
+                    <select id="select-away-sub-out" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-emerald-500/40 text-xs text-white"></select>
+                  </div>
+                  <div>
+                    <span class="text-[11px] text-rose-400 block mb-1">Pemain Masuk (Merah):</span>
+                    <select id="select-away-sub-in" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-rose-500/40 text-xs text-white"></select>
+                  </div>
+                </div>
+                <button id="btn-away-sub" class="w-full py-2.5 rounded-xl bg-purple-500/25 hover:bg-purple-500/40 border border-purple-400/40 text-purple-200 font-bold text-xs uppercase tracking-wider">
+                  🔄 TAMPILKAN POP-UP SUBSTITUSI AWAY (PageDown)
+                </button>
+              </div>
+
+              <!-- Penalty Buttons -->
+              <div class="pt-3 border-t border-white/10 flex items-center gap-3">
+                <button id="btn-away-pen-goal" class="flex-1 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-300 font-bold text-xs uppercase">
+                  ✔ GOL PENALTI AWAY (Y)
+                </button>
+                <button id="btn-away-pen-miss" class="flex-1 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/40 text-rose-300 font-bold text-xs uppercase">
+                  ✖ GAGAL PENALTI AWAY (H)
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ======================= TAB 2: MANAJEMEN TIM & 9 PEMAIN ======================= -->
+        <div id="tab-teams" class="remote-tab-pane hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- HOME TEAM ROSTER (9 SLOTS: 5 Utama, 2 Cadangan, 2 Official) -->
+            <div class="p-6 rounded-2xl bg-slate-900/90 border border-cyan-500/30 space-y-4">
+              <h3 class="text-lg font-black uppercase tracking-wider text-cyan-300">MANAJEMEN TIM HOME (9 KUOTA)</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Nama Tim Home:</label>
+                  <input id="input-home-name" type="text" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-white font-bold" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Unggah Logo Transparan (PNG):</label>
+                  <input id="input-home-logo" type="file" accept="image/png,image/*" class="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30" />
+                </div>
+              </div>
+
+              <div class="space-y-2 pt-2">
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Daftar 9 Personel (5 Utama • 2 Cadangan • 2 Official)</div>
+                <div id="roster-home-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+
+            <!-- AWAY TEAM ROSTER (9 SLOTS: 5 Utama, 2 Cadangan, 2 Official) -->
+            <div class="p-6 rounded-2xl bg-slate-900/90 border border-pink-500/30 space-y-4">
+              <h3 class="text-lg font-black uppercase tracking-wider text-pink-400">MANAJEMEN TIM AWAY (9 KUOTA)</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Nama Tim Away:</label>
+                  <input id="input-away-name" type="text" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-white font-bold" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Unggah Logo Transparan (PNG):</label>
+                  <input id="input-away-logo" type="file" accept="image/png,image/*" class="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-pink-500/20 file:text-pink-300 hover:file:bg-pink-500/30" />
+                </div>
+              </div>
+
+              <div class="space-y-2 pt-2">
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Daftar 9 Personel (5 Utama • 2 Cadangan • 2 Official)</div>
+                <div id="roster-away-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ======================= TAB 3: STATISTIK PERTANDINGAN ======================= -->
+        <div id="tab-stats" class="remote-tab-pane hidden space-y-6">
+          <div class="p-6 rounded-2xl bg-slate-900/90 border border-white/10 space-y-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-black uppercase tracking-wider text-white">EDITOR STATISTIK "IN THE MATCH"</h3>
+                <p class="text-xs text-slate-400">Sesuaikan metrik Shots, Shots on Target, Corners, Kartu, dan Ball Possession (%)</p>
+              </div>
+              <button id="remote-open-stats-modal" class="px-4 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+                Tampilkan Modal Statistik di Layar
+              </button>
+            </div>
+
+            <div id="remote-stats-editor" class="space-y-4">
+              <!-- Populated dynamically via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================= TAB 4: AI GEMINI & FIREBASE SYNC ======================= -->
+        <div id="tab-ai" class="remote-tab-pane hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Google Gemini AI Tactical & News Generator -->
+            <div class="p-6 rounded-2xl bg-slate-900/90 border border-amber-400/30 space-y-4">
+              <div class="flex items-center gap-3">
+                <i data-lucide="sparkles" class="w-6 h-6 text-amber-400"></i>
+                <div>
+                  <h3 class="text-lg font-black uppercase tracking-wider text-white">ANALISIS & LAPORAN AI (GOOGLE GEMINI)</h3>
+                  <p class="text-xs text-slate-400">Generator komentar taktis & laporan berita olahraga otomatis</p>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Google Gemini API Key (Opsional — fallback cerdas tersedia jika kosong):</label>
+                <input id="input-gemini-key" type="password" placeholder="AIzaSy..." class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-sm text-white" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <button id="btn-ai-tactical" class="py-3 px-4 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/40 text-amber-300 font-bold text-xs uppercase tracking-wider transition">
+                  ⚡ GENERATE KOMENTAR TAKTIS
+                </button>
+                <button id="btn-ai-news" class="py-3 px-4 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400/40 text-cyan-300 font-bold text-xs uppercase tracking-wider transition">
+                  📰 GENERATE BERITA OLAHRAGA
+                </button>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Hasil Analisis / Laporan AI:</label>
+                <textarea id="ai-output-box" rows="8" readonly class="w-full p-4 rounded-2xl bg-slate-950 border border-white/15 text-sm text-slate-200 leading-relaxed" placeholder="Klik salah satu tombol di atas untuk menghasilkan analisis taktis atau artikel berita pertandingan secara real-time..."></textarea>
+              </div>
+            </div>
+
+            <!-- Firebase Firestore Multi-Device Sync Configuration -->
+            <div class="p-6 rounded-2xl bg-slate-900/90 border border-emerald-400/30 space-y-4">
+              <div class="flex items-center gap-3">
+                <i data-lucide="cloud-lightning" class="w-6 h-6 text-emerald-400"></i>
+                <div>
+                  <h3 class="text-lg font-black uppercase tracking-wider text-white">SINKRONISASI PERANGKAT (FIREBASE FIRESTORE)</h3>
+                  <p class="text-xs text-slate-400">Hubungkan Display Utama & Remote di perangkat berbeda secara real-time</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Match Room ID:</label>
+                  <input id="input-room-id" type="text" value="ARENA-01" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-sm font-digital font-bold text-emerald-300" />
+                </div>
+                <div class="flex items-end">
+                  <button id="btn-connect-firebase" class="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition">
+                    🔗 HUBUNGKAN / SINKRONKAN
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Firebase Config JSON (Paste objek firebaseConfig proyek Anda):</label>
+                <textarea id="input-firebase-config" rows="6" class="w-full p-3 rounded-xl bg-slate-950 border border-white/15 font-mono text-xs text-slate-300" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-950/90 border border-white/10 text-xs text-slate-400 space-y-1">
+                <div class="font-bold text-slate-200">Status Sinkronisasi: <span id="firebase-status-detail" class="text-emerald-400">BroadcastChannel & LocalStorage Aktif (Instan Antar-Tab)</span></div>
+                <p>Buka file HTML ini di 2 tab/jendela browser pada perangkat yang sama untuk langsung sinkron otomatis tanpa setup, atau masukkan JSON Firebase Firestore di atas untuk sinkronisasi lintas perangkat (HP/Tablet ke TV Broadcast).</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       ES6 MODULE SCRIPT: STATE, AUDIO SYNTH/TTS, FIREBASE SYNC, UI & SHORTCUTS
+  ========================================================================== -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      onSnapshot
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    // -------------------------------------------------------------------------
+    // DEFAULT SVG LOGOS (Transparent PNG/SVG Data URLs)
+    // -------------------------------------------------------------------------
+    const DEFAULT_HOME_LOGO = `data:image/svg+xml;utf8,` + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00f3ff"/>
+            <stop offset="100%" stop-color="#0284c7"/>
+          </linearGradient>
+        </defs>
+        <path d="M100 12 L174 42 L174 108 C174 150 142 178 100 190 C58 178 26 150 26 108 L26 42 Z" fill="url(#hg)" stroke="#e0f2fe" stroke-width="6"/>
+        <path d="M100 32 L154 54 L154 105 C154 138 130 158 100 168 C70 158 46 138 46 105 L46 54 Z" fill="#082f49"/>
+        <polygon points="100,52 114,82 146,86 122,108 128,140 100,124 72,140 78,108 54,86 86,82" fill="#00f3ff"/>
+      </svg>
+    `);
+
+    const DEFAULT_AWAY_LOGO = `data:image/svg+xml;utf8,` + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="ag" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff007f"/>
+            <stop offset="100%" stop-color="#9d174d"/>
+          </linearGradient>
+        </defs>
+        <path d="M100 12 L174 42 L174 108 C174 150 142 178 100 190 C58 178 26 150 26 108 L26 42 Z" fill="url(#ag)" stroke="#fce7f3" stroke-width="6"/>
+        <path d="M100 32 L154 54 L154 105 C154 138 130 158 100 168 C70 158 46 138 46 105 L46 54 Z" fill="#4c0519"/>
+        <polygon points="100,52 114,82 146,86 122,108 128,140 100,124 72,140 78,108 54,86 86,82" fill="#ff007f"/>
+      </svg>
+    `);
+
+    // -------------------------------------------------------------------------
+    // INITIAL APPLICATION STATE (9 Quota Roster per Team: 5 Utama, 2 Cadangan, 2 Official)
+    // -------------------------------------------------------------------------
+    const createDefaultRoster = (prefix) => [
+      { id: 1, role: 'Utama 1 (GK)', number: '1', name: `${prefix} Alfarizi` },
+      { id: 2, role: 'Utama 2 (Anchor)', number: '4', name: `${prefix} Rizky` },
+      { id: 3, role: 'Utama 3 (Flank)', number: '7', name: `${prefix} Ardiansyah` },
+      { id: 4, role: 'Utama 4 (Flank)', number: '10', name: `${prefix} Evan Soumilena` },
+      { id: 5, role: 'Utama 5 (Pivot)', number: '9', name: `${prefix} Samuel Eko` },
+      { id: 6, role: 'Cadangan 1', number: '12', name: `${prefix} Iqbal Iskandar` },
+      { id: 7, role: 'Cadangan 2', number: '14', name: `${prefix} Wendy Brian` },
+      { id: 8, role: 'Official 1 (Head Coach)', number: 'HC', name: `Coach ${prefix} Kensuke` },
+      { id: 9, role: 'Official 2 (Manager)', number: 'MGR', name: `Mgr. ${prefix} Pratama` },
+    ];
+
+    const state = {
+      roomId: 'ARENA-01',
+      timerSeconds: 20 * 60,
+      defaultTimerSeconds: 20 * 60,
+      timerRunning: false,
+      period: 1,
+      penaltyMode: false,
+      aiTicker: 'Tekan tombol Remote (M) untuk analisis taktis AI & kontrol penuh.',
+      home: {
+        name: 'GARUDA MUDA FC',
+        logo: DEFAULT_HOME_LOGO,
+        score: 0,
+        penalties: [null, null, null, null, null, null, null], // 7 slots: 'goal' | 'miss' | null
+        roster: createDefaultRoster('GM')
+      },
+      away: {
+        name: 'BINTANG TIMUR FC',
+        logo: DEFAULT_AWAY_LOGO,
+        score: 0,
+        penalties: [null, null, null, null, null, null, null],
+        roster: createDefaultRoster('BT')
+      },
+      stats: {
+        shots: [6, 5],
+        shotsOnTarget: [4, 3],
+        corners: [3, 2],
+        yellowCards: [0, 0],
+        redCards: [0, 0],
+        possession: [52, 48]
+      },
+      lastOverlayEvent: null
+    };
+
+    // Load persisted state from localStorage if available
+    const STORAGE_KEY = 'FUTSAL_PRO_SCOREBOARD_STATE_V1';
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        Object.assign(state, parsed);
+        state.timerRunning = false; // Always start paused on reload
+      }
+    } catch (e) {
+      console.warn('Could not load saved state:', e);
+    }
+
+    // -------------------------------------------------------------------------
+    // RESPONSIVE 1600x1200 SCALING ENGINE
+    // -------------------------------------------------------------------------
+    function fitBroadcastStage() {
+      const stage = document.getElementById('broadcast-stage');
+      if (!stage) return;
+      const scaleX = window.innerWidth / 1600;
+      const scaleY = window.innerHeight / 1200;
+      const scale = Math.min(scaleX, scaleY) * 0.985;
+      stage.style.transform = `scale(${scale})`;
+    }
+    window.addEventListener('resize', fitBroadcastStage);
+    fitBroadcastStage();
+
+    // -------------------------------------------------------------------------
+    // WEB AUDIO SYNTHESIZER (BUZZER HORN, GOAL SIREN, WHISTLE) & TTS
+    // -------------------------------------------------------------------------
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playBuzzerSound() {
+      try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+        const freqs = [145, 290, 435];
+        freqs.forEach((f) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(f, now);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.6);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.65);
+        });
+      } catch (e) {
+        console.warn('Audio play blocked:', e);
+      }
+    }
+
+    function playCardWhistle() {
+      try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(2800, now);
+        osc.frequency.linearRampToValueAtTime(2550, now + 0.35);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.42);
+      } catch (e) {}
+    }
+
+    function speakTTS(text) {
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'id-ID';
+          utter.rate = 1.02;
+          utter.pitch = 1.1;
+          window.speechSynthesis.speak(utter);
+        }
+      } catch (e) {
+        console.warn('TTS error:', e);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // REAL-TIME MULTI-DEVICE SYNC (BroadcastChannel + Firebase Firestore)
+    // -------------------------------------------------------------------------
+    const localChannel = new BroadcastChannel('FUTSAL_SCOREBOARD_CHANNEL');
+    let firestoreDb = null;
+    let firestoreUnsub = null;
+    let isApplyingRemoteUpdate = false;
+
+    localChannel.onmessage = (ev) => {
+      if (ev.data && ev.data.type === 'STATE_SYNC') {
+        isApplyingRemoteUpdate = true;
+        const incomingOverlay = ev.data.payload.lastOverlayEvent;
+        const prevOverlayId = state.lastOverlayEvent?.id;
+        Object.assign(state, ev.data.payload);
+        renderAll();
+        if (incomingOverlay && incomingOverlay.id !== prevOverlayId) {
+          showOverlayFromEvent(incomingOverlay, false);
+        }
+        isApplyingRemoteUpdate = false;
+      }
+    };
+
+    async function connectFirebase(configJsonStr, roomId) {
+      try {
+        const firebaseConfig = JSON.parse(configJsonStr);
+        const app = initializeApp(firebaseConfig, 'scoreboard-' + Date.now());
+        firestoreDb = getFirestore(app);
+        state.roomId = (roomId || 'ARENA-01').trim().toUpperCase();
+
+        if (firestoreUnsub) firestoreUnsub();
+        const roomRef = doc(firestoreDb, 'futsal_scoreboards', state.roomId);
+
+        firestoreUnsub = onSnapshot(roomRef, (snap) => {
+          if (!snap.exists()) {
+            broadcastState();
+            return;
+          }
+          const data = snap.data();
+          isApplyingRemoteUpdate = true;
+          const prevOverlayId = state.lastOverlayEvent?.id;
+          Object.assign(state, data);
+          renderAll();
+          if (data.lastOverlayEvent && data.lastOverlayEvent.id !== prevOverlayId) {
+            showOverlayFromEvent(data.lastOverlayEvent, false);
+          }
+          isApplyingRemoteUpdate = false;
+        });
+
+        document.getElementById('sync-label').textContent = 'FIREBASE CLOUD LIVE SYNC';
+        document.getElementById('firebase-status-detail').textContent = `Terhubung ke Firestore Room: ${state.roomId}`;
+        renderAll();
+      } catch (err) {
+        alert('Gagal menghubungkan Firebase Config JSON: ' + err.message);
+      }
+    }
+
+    async function broadcastState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+
+      if (!isApplyingRemoteUpdate) {
+        localChannel.postMessage({
+          type: 'STATE_SYNC',
+          payload: JSON.parse(JSON.stringify(state))
+        });
+
+        if (firestoreDb) {
+          try {
+            const roomRef = doc(firestoreDb, 'futsal_scoreboards', state.roomId);
+            await setDoc(roomRef, JSON.parse(JSON.stringify(state)), { merge: true });
+          } catch (e) {
+            console.warn('Firestore sync error:', e);
+          }
+        }
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // FULLSCREEN ANIMATED OVERLAYS (LEFT-TO-RIGHT SWEEP)
+    // -------------------------------------------------------------------------
+    let overlayTimeout = null;
+
+    function triggerOverlay(eventPayload) {
+      const fullEvent = {
+        ...eventPayload,
+        id: Date.now() + '-' + Math.random().toString(36).slice(2, 6)
+      };
+      state.lastOverlayEvent = fullEvent;
+      showOverlayFromEvent(fullEvent, true);
+      broadcastState();
+    }
+
+    function hideOverlay() {
+      const overlay = document.getElementById('broadcast-overlay');
+      if (!overlay.classList.contains('active')) return;
+      overlay.classList.add('exit-right');
+      overlay.classList.remove('active');
+      setTimeout(() => {
+        overlay.classList.remove('exit-right');
+      }, 550);
+    }
+
+    function showOverlayFromEvent(ev, playAudio = true) {
+      const overlay = document.getElementById('broadcast-overlay');
+      const container = document.getElementById('broadcast-overlay-content');
+      if (overlayTimeout) clearTimeout(overlayTimeout);
+
+      overlay.classList.remove('exit-right');
+
+      if (ev.type === 'GOAL') {
+        const isHome = ev.team === 'home';
+        if (playAudio) {
+          speakTTS(`Gooool! Dicetak oleh nomor punggung ${ev.playerNumber}, ${ev.playerName}, untuk ${ev.teamName}!`);
+        }
+        container.innerHTML = `
+          <div class="neon-box rounded-3xl p-12 border-4 ${isHome ? 'border-cyan-400 shadow-[0_0_90px_rgba(0,243,255,0.45)]' : 'border-pink-500 shadow-[0_0_90px_rgba(255,0,127,0.45)]'} flex flex-col items-center text-center relative overflow-hidden">
+            <div class="text-sm font-black tracking-[0.4em] uppercase ${isHome ? 'text-cyan-300' : 'text-pink-400'} mb-3">
+              ★ ${ev.teamName} SCORES! ★
+            </div>
+            <h1 class="text-[115px] leading-none font-digital font-black italic tracking-wider ${isHome ? 'neon-score-home' : 'neon-score-away'} animate-goal-text mb-8">
+              GOOOAAAAL!!!!!!
+            </h1>
+            <div class="flex items-center gap-8 bg-slate-900/90 px-10 py-6 rounded-3xl border border-white/15">
+              <img src="${ev.teamLogo}" alt="Avatar" class="w-28 h-28 object-contain rounded-2xl bg-slate-950 p-3 border border-white/10" />
+              <div class="text-left">
+                <div class="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">PENCETAK GOL</div>
+                <div class="text-5xl font-black text-white uppercase mt-1">${ev.playerName}</div>
+                <div class="text-2xl font-digital font-bold ${isHome ? 'text-cyan-300' : 'text-pink-400'} mt-1">
+                  NOMOR PUNGGUNG #${ev.playerNumber}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (ev.type === 'CARD') {
+        const isYellow = ev.cardType === 'YELLOW';
+        if (playAudio) playCardWhistle();
+        container.innerHTML = `
+          <div class="neon-box rounded-3xl p-12 border-4 ${isYellow ? 'border-amber-400 shadow-[0_0_80px_rgba(251,191,36,0.4)]' : 'border-rose-500 shadow-[0_0_80px_rgba(244,63,94,0.45)]'} flex items-center justify-between gap-10">
+            <div class="flex items-center gap-8">
+              <div class="w-32 h-44 rounded-2xl ${isYellow ? 'bg-amber-400 shadow-[0_0_45px_#fbbf24]' : 'bg-rose-600 shadow-[0_0_45px_#e11d48]'} border-4 border-white/40 shrink-0"></div>
+              <div>
+                <div class="text-sm font-black tracking-[0.35em] uppercase ${isYellow ? 'text-amber-300' : 'text-rose-400'}">
+                  DISCIPLINARY ACTION • ${ev.teamName}
+                </div>
+                <h2 class="text-7xl font-black uppercase text-white mt-2">
+                  ${isYellow ? 'KARTU KUNING' : 'KARTU MERAH'}
+                </h2>
+                <div class="mt-4 flex items-center gap-4">
+                  <span class="px-5 py-2 rounded-xl bg-slate-900 border border-white/15 font-digital font-bold text-4xl text-white">
+                    #${ev.playerNumber}
+                  </span>
+                  <span class="text-4xl font-extrabold text-slate-100 uppercase">
+                    ${ev.playerName}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <img src="${ev.teamLogo}" class="w-36 h-36 object-contain opacity-90" />
+          </div>
+        `;
+      } else if (ev.type === 'SUB') {
+        if (playAudio) playCardWhistle();
+        container.innerHTML = `
+          <div class="neon-box rounded-3xl p-12 border-4 border-purple-400/60 shadow-[0_0_80px_rgba(168,85,247,0.35)] space-y-8">
+            <div class="flex items-center justify-between border-b border-white/10 pb-5">
+              <div class="flex items-center gap-4">
+                <img src="${ev.teamLogo}" class="w-16 h-16 object-contain" />
+                <div>
+                  <div class="text-xs font-bold tracking-[0.3em] uppercase text-purple-300">PERGANTIAN PEMAIN (SUBSTITUSI)</div>
+                  <h2 class="text-4xl font-black uppercase text-white">${ev.teamName}</h2>
+                </div>
+              </div>
+              <span class="px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-200 text-xs font-bold uppercase tracking-widest">
+                OFFICIAL SUBSTITUTION
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-8">
+              <!-- PEMAIN KELUAR (HIJAU SESUAI SPESIFIKASI) -->
+              <div class="p-7 rounded-2xl bg-emerald-950/50 border-2 border-emerald-400/60 flex items-center gap-6">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/25 border border-emerald-400 flex items-center justify-center text-emerald-300 font-black text-3xl">
+                  ↓
+                </div>
+                <div>
+                  <div class="text-xs font-extrabold uppercase tracking-[0.25em] text-emerald-400">PEMAIN KELUAR (OUT)</div>
+                  <div class="text-3xl font-black text-white uppercase mt-1">${ev.outName}</div>
+                  <div class="text-xl font-digital font-bold text-emerald-300 mt-0.5">NOMOR #${ev.outNumber}</div>
+                </div>
+              </div>
+
+              <!-- PEMAIN MASUK (MERAH SESUAI SPESIFIKASI) -->
+              <div class="p-7 rounded-2xl bg-rose-950/50 border-2 border-rose-500/60 flex items-center gap-6">
+                <div class="w-16 h-16 rounded-2xl bg-rose-500/25 border border-rose-400 flex items-center justify-center text-rose-300 font-black text-3xl">
+                  ↑
+                </div>
+                <div>
+                  <div class="text-xs font-extrabold uppercase tracking-[0.25em] text-rose-400">PEMAIN MASUK (IN)</div>
+                  <div class="text-3xl font-black text-white uppercase mt-1">${ev.inName}</div>
+                  <div class="text-xl font-digital font-bold text-rose-300 mt-0.5">NOMOR #${ev.inNumber}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (ev.type === 'TIMEUP') {
+        if (playAudio) playBuzzerSound();
+        container.innerHTML = `
+          <div class="neon-box rounded-3xl p-14 border-4 border-rose-500 shadow-[0_0_100px_rgba(244,63,94,0.6)] text-center space-y-6">
+            <div class="text-base font-black tracking-[0.4em] uppercase text-rose-400">
+              ⏰ SIRINE AKHIR WAKTU PERTANDINGAN ⏰
+            </div>
+            <h1 class="text-[110px] leading-none font-digital font-black neon-timer-danger">
+              WAKTU HABIS
+            </h1>
+            <p class="text-2xl font-bold text-slate-300 uppercase tracking-widest">
+              BABAK ${state.period} TELAH BERAKHIR • SKOR ${state.home.name} ${state.home.score} - ${state.away.score} ${state.away.name}
+            </p>
+          </div>
+        `;
+      }
+
+      requestAnimationFrame(() => {
+        overlay.classList.add('active');
+      });
+
+      overlayTimeout = setTimeout(() => {
+        hideOverlay();
+      }, 4500);
+    }
+
+    // -------------------------------------------------------------------------
+    // TIMER COUNTDOWN ENGINE
+    // -------------------------------------------------------------------------
+    setInterval(() => {
+      if (!state.timerRunning) return;
+      if (state.timerSeconds > 0) {
+        state.timerSeconds -= 1;
+        renderTimerOnly();
+        if (state.timerSeconds === 0) {
+          state.timerRunning = false;
+          renderAll();
+          triggerOverlay({ type: 'TIMEUP' });
+        }
+      }
+    }, 1000);
+
+    function formatMMSS(totalSec) {
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function renderTimerOnly() {
+      const formatted = formatMMSS(state.timerSeconds);
+      const timerEl = document.getElementById('display-timer');
+      const remoteTimerEl = document.getElementById('remote-timer-preview');
+      if (timerEl) {
+        timerEl.textContent = formatted;
+        if (state.timerSeconds <= 60) {
+          timerEl.className = 'text-[128px] leading-none font-bold tracking-wider neon-timer-danger my-2';
+        } else {
+          timerEl.className = 'text-[128px] leading-none font-bold tracking-wider neon-timer my-2';
+        }
+      }
+      if (remoteTimerEl) remoteTimerEl.textContent = formatted;
+    }
+
+    // -------------------------------------------------------------------------
+    // UI RENDERING FUNCTIONS
+    // -------------------------------------------------------------------------
+    function renderPenaltyDots(teamKey, containerId, scoreId) {
+      const container = document.getElementById(containerId);
+      const scoreEl = document.getElementById(scoreId);
+      if (!container) return;
+      const arr = state[teamKey].penalties;
+      const goals = arr.filter((x) => x === 'goal').length;
+      const taken = arr.filter((x) => x !== null).length;
+      if (scoreEl) scoreEl.textContent = `${goals} / ${taken}`;
+
+      container.innerHTML = arr
+        .map((status, idx) => {
+          let cls = 'bg-slate-900/90 border-white/20 text-slate-500';
+          let label = idx + 1;
+          if (status === 'goal') {
+            cls = 'pen-dot-goal text-slate-950 font-black';
+            label = '✓';
+          } else if (status === 'miss') {
+            cls = 'pen-dot-miss text-white font-black';
+            label = '✕';
+          }
+          return `
+            <button data-team="${teamKey}" data-idx="${idx}"
+              title="Klik untuk ubah status penendang #${idx + 1}"
+              class="pen-dot-btn h-11 rounded-xl border-2 flex items-center justify-center font-digital text-sm transition-all ${cls}">
+              ${label}
+            </button>
+          `;
+        })
+        .join('');
+
+      container.querySelectorAll('.pen-dot-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const t = btn.getAttribute('data-team');
+          const i = Number(btn.getAttribute('data-idx'));
+          const current = state[t].penalties[i];
+          const next = current === null ? 'goal' : current === 'goal' ? 'miss' : null;
+          state[t].penalties[i] = next;
+          renderAll();
+          broadcastState();
+        });
+      });
+    }
+
+    function populatePlayerSelects() {
+      ['home', 'away'].forEach((teamKey) => {
+        const roster = state[teamKey].roster;
+        const mainSelect = document.getElementById(`select-${teamKey}-player`);
+        const outSelect = document.getElementById(`select-${teamKey}-sub-out`);
+        const inSelect = document.getElementById(`select-${teamKey}-sub-in`);
+
+        const optionsHtml = roster
+          .map(
+            (p, idx) =>
+              `<option value="${idx}">#${p.number} - ${p.name} (${p.role})</option>`
+          )
+          .join('');
+
+        if (mainSelect) {
+          const prev = mainSelect.value || '0';
+          mainSelect.innerHTML = optionsHtml;
+          mainSelect.value = prev;
+        }
+        if (outSelect) {
+          const prev = outSelect.value || '0';
+          outSelect.innerHTML = optionsHtml;
+          outSelect.value = prev;
+        }
+        if (inSelect) {
+          const prev = inSelect.value || '5';
+          inSelect.innerHTML = optionsHtml;
+          inSelect.value = prev;
+        }
+      });
+    }
+
+    function renderRosterEditor() {
+      ['home', 'away'].forEach((teamKey) => {
+        const listEl = document.getElementById(`roster-${teamKey}-list`);
+        if (!listEl) return;
+        listEl.innerHTML = state[teamKey].roster
+          .map(
+            (p, idx) => `
+            <div class="grid grid-cols-12 gap-2 items-center bg-slate-950/70 p-2 rounded-xl border border-white/10">
+              <span class="col-span-4 text-[11px] font-bold text-slate-400 px-2 truncate">${p.role}</span>
+              <input data-team="${teamKey}" data-idx="${idx}" data-field="number" value="${p.number}"
+                class="roster-input col-span-2 px-2 py-1.5 rounded-lg bg-slate-900 border border-white/15 text-center font-digital text-xs text-white" placeholder="No" />
+              <input data-team="${teamKey}" data-idx="${idx}" data-field="name" value="${p.name}"
+                class="roster-input col-span-6 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-white/15 text-xs text-white" placeholder="Nama Lengkap" />
+            </div>
+          `
+          )
+          .join('');
+
+        listEl.querySelectorAll('.roster-input').forEach((inp) => {
+          inp.addEventListener('input', (e) => {
+            const t = e.target.getAttribute('data-team');
+            const i = Number(e.target.getAttribute('data-idx'));
+            const f = e.target.getAttribute('data-field');
+            state[t].roster[i][f] = e.target.value;
+            populatePlayerSelects();
+            broadcastState();
+          });
+        });
+      });
+    }
+
+    function renderStatsModalAndEditor() {
+      const metrics = [
+        { key: 'shots', label: 'SHOTS (TOTAL TEMBAKAN)', isPercent: false },
+        { key: 'shotsOnTarget', label: 'SHOTS ON TARGET', isPercent: false },
+        { key: 'corners', label: 'CORNERS (SEPAK POJOK)', isPercent: false },
+        { key: 'yellowCards', label: 'YELLOW CARDS (KARTU KUNING)', isPercent: false },
+        { key: 'redCards', label: 'RED CARDS (KARTU MERAH)', isPercent: false },
+        { key: 'possession', label: 'BALL POSSESSION (%)', isPercent: true }
+      ];
+
+      // 1. Render Modal Bars
+      const modalBars = document.getElementById('stats-bars-container');
+      if (modalBars) {
+        modalBars.innerHTML = metrics
+          .map((m) => {
+            const [hVal, aVal] = state.stats[m.key];
+            const total = hVal + aVal || 1;
+            const hPct = m.isPercent ? hVal : Math.round((hVal / total) * 100);
+            const aPct = m.isPercent ? aVal : 100 - hPct;
+            const suffix = m.isPercent ? '%' : '';
+            return `
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between text-sm font-bold">
+                  <span class="font-digital text-lg text-cyan-300">${hVal}${suffix}</span>
+                  <span class="text-xs tracking-[0.25em] uppercase text-slate-300">${m.label}</span>
+                  <span class="font-digital text-lg text-pink-400">${aVal}${suffix}</span>
+                </div>
+                <div class="w-full h-3.5 rounded-full bg-slate-900 overflow-hidden flex p-0.5 border border-white/10">
+                  <div class="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 rounded-l-full transition-all duration-500" style="width: ${hPct}%"></div>
+                  <div class="h-full bg-gradient-to-l from-pink-500 to-rose-400 rounded-r-full transition-all duration-500" style="width: ${aPct}%"></div>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      // 2. Render Remote Editor
+      const editorEl = document.getElementById('remote-stats-editor');
+      if (editorEl) {
+        editorEl.innerHTML = metrics
+          .map((m) => {
+            const [hVal, aVal] = state.stats[m.key];
+            return `
+              <div class="grid grid-cols-12 items-center gap-4 p-3 rounded-xl bg-slate-950/70 border border-white/10">
+                <div class="col-span-4 flex items-center gap-2">
+                  <button data-stat="${m.key}" data-side="0" data-delta="-1" class="stat-step-btn w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 font-bold">-</button>
+                  <span class="font-digital font-bold text-lg text-cyan-300 w-12 text-center">${hVal}${m.isPercent ? '%' : ''}</span>
+                  <button data-stat="${m.key}" data-side="0" data-delta="1" class="stat-step-btn w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 font-bold">+</button>
+                </div>
+                <div class="col-span-4 text-center text-xs font-bold uppercase tracking-wider text-slate-300">
+                  ${m.label}
+                </div>
+                <div class="col-span-4 flex items-center justify-end gap-2">
+                  <button data-stat="${m.key}" data-side="1" data-delta="-1" class="stat-step-btn w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 font-bold">-</button>
+                  <span class="font-digital font-bold text-lg text-pink-400 w-12 text-center">${aVal}${m.isPercent ? '%' : ''}</span>
+                  <button data-stat="${m.key}" data-side="1" data-delta="1" class="stat-step-btn w-8 h-8 rounded-lg bg-pink-500/20 text-pink-300 border border-pink-400/30 font-bold">+</button>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+
+        editorEl.querySelectorAll('.stat-step-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const key = btn.getAttribute('data-stat');
+            const side = Number(btn.getAttribute('data-side'));
+            const delta = Number(btn.getAttribute('data-delta'));
+
+            if (key === 'possession') {
+              const newVal = Math.max(0, Math.min(100, state.stats.possession[side] + delta));
+              state.stats.possession[side] = newVal;
+              state.stats.possession[1 - side] = 100 - newVal;
+            } else {
+              state.stats[key][side] = Math.max(0, state.stats[key][side] + delta);
+            }
+            renderAll();
+            broadcastState();
+          });
+        });
+      }
+    }
+
+    function renderAll() {
+      // Room Badge
+      document.getElementById('room-badge').textContent = `ROOM: ${state.roomId}`;
+
+      // Home & Away Display
+      document.getElementById('display-home-name').textContent = state.home.name;
+      document.getElementById('display-away-name').textContent = state.away.name;
+      document.getElementById('display-home-logo').src = state.home.logo;
+      document.getElementById('display-away-logo').src = state.away.logo;
+      document.getElementById('display-home-score').textContent = state.home.score;
+      document.getElementById('display-away-score').textContent = state.away.score;
+
+      // Yellow / Red Cards on main display
+      document.getElementById('display-home-yc').textContent = state.stats.yellowCards[0];
+      document.getElementById('display-home-rc').textContent = state.stats.redCards[0];
+      document.getElementById('display-away-yc').textContent = state.stats.yellowCards[1];
+      document.getElementById('display-away-rc').textContent = state.stats.redCards[1];
+
+      // Timer & status
+      renderTimerOnly();
+      const dot = document.getElementById('timer-status-dot');
+      const txt = document.getElementById('timer-status-text');
+      if (state.timerRunning) {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping';
+        txt.textContent = 'LIVE MATCH RUNNING';
+        txt.className = 'text-xs font-bold tracking-[0.3em] uppercase text-emerald-400';
+      } else {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+        txt.textContent = 'PAUSED / STANDBY';
+        txt.className = 'text-xs font-bold tracking-[0.3em] uppercase text-amber-300';
+      }
+
+      // Period & Penalty Mode
+      document.getElementById('display-period').textContent = state.period;
+      document.getElementById('remote-period-preview').textContent = `Babak ${state.period}`;
+      const penBanner = document.getElementById('penalty-mode-banner');
+      const homePenPanel = document.getElementById('home-penalty-panel');
+      const awayPenPanel = document.getElementById('away-penalty-panel');
+
+      if (state.penaltyMode) {
+        penBanner.classList.remove('hidden');
+        homePenPanel.classList.remove('opacity-40');
+        awayPenPanel.classList.remove('opacity-40');
+      } else {
+        penBanner.classList.add('hidden');
+        homePenPanel.classList.add('opacity-40');
+        awayPenPanel.classList.add('opacity-40');
+      }
+
+      renderPenaltyDots('home', 'display-home-pen-dots', 'display-home-pen-score');
+      renderPenaltyDots('away', 'display-away-pen-dots', 'display-away-pen-score');
+
+      // Mini Possession & AI Ticker
+      const [hPoss, aPoss] = state.stats.possession;
+      document.getElementById('mini-poss-home').textContent = `${hPoss}%`;
+      document.getElementById('mini-poss-away').textContent = `${aPoss}%`;
+      document.getElementById('mini-poss-bar-home').style.width = `${hPoss}%`;
+      document.getElementById('mini-poss-bar-away').style.width = `${aPoss}%`;
+      document.getElementById('ai-ticker-text').textContent = state.aiTicker;
+
+      // Remote Titles & Previews
+      document.getElementById('remote-home-title').textContent = state.home.name;
+      document.getElementById('remote-away-title').textContent = state.away.name;
+      document.getElementById('remote-home-score').textContent = state.home.score;
+      document.getElementById('remote-away-score').textContent = state.away.score;
+      document.getElementById('input-home-name').value = state.home.name;
+      document.getElementById('input-away-name').value = state.away.name;
+
+      // Stats Modal Header
+      document.getElementById('stats-home-name').textContent = state.home.name;
+      document.getElementById('stats-away-name').textContent = state.away.name;
+      document.getElementById('stats-home-logo').src = state.home.logo;
+      document.getElementById('stats-away-logo').src = state.away.logo;
+      document.getElementById('stats-home-score').textContent = state.home.score;
+      document.getElementById('stats-away-score').textContent = state.away.score;
+
+      populatePlayerSelects();
+      renderStatsModalAndEditor();
+    }
+
+    // -------------------------------------------------------------------------
+    // MATCH ACTIONS (SCORE, PENALTY, CARDS, SUBSTITUTION)
+    // -------------------------------------------------------------------------
+    function getSelectedPlayer(teamKey, selectId) {
+      const sel = document.getElementById(selectId);
+      const idx = sel ? Number(sel.value) : 0;
+      return state[teamKey].roster[idx] || state[teamKey].roster[0];
+    }
+
+    function changeScore(teamKey, delta, withOverlay = true) {
+      const next = Math.max(0, state[teamKey].score + delta);
+      state[teamKey].score = next;
+      if (delta > 0) {
+        const sideIdx = teamKey === 'home' ? 0 : 1;
+        state.stats.shots[sideIdx] += 1;
+        state.stats.shotsOnTarget[sideIdx] += 1;
+        if (withOverlay) {
+          const p = getSelectedPlayer(teamKey, `select-${teamKey}-player`);
+          triggerOverlay({
+            type: 'GOAL',
+            team: teamKey,
+            teamName: state[teamKey].name,
+            teamLogo: state[teamKey].logo,
+            playerName: p.name,
+            playerNumber: p.number
+          });
+        }
+      }
+      renderAll();
+      broadcastState();
+    }
+
+    function recordPenaltyAttempt(teamKey, result) {
+      state.penaltyMode = true;
+      const arr = state[teamKey].penalties;
+      let idx = arr.findIndex((x) => x === null);
+      if (idx === -1) {
+        state[teamKey].penalties = [result, null, null, null, null, null, null];
+      } else {
+        state[teamKey].penalties[idx] = result;
+      }
+      renderAll();
+      broadcastState();
+    }
+
+    function triggerCardAction(teamKey, cardType) {
+      const sideIdx = teamKey === 'home' ? 0 : 1;
+      if (cardType === 'YELLOW') {
+        state.stats.yellowCards[sideIdx] += 1;
+      } else {
+        state.stats.redCards[sideIdx] += 1;
+      }
+      const p = getSelectedPlayer(teamKey, `select-${teamKey}-player`);
+      renderAll();
+      triggerOverlay({
+        type: 'CARD',
+        team: teamKey,
+        cardType,
+        teamName: state[teamKey].name,
+        teamLogo: state[teamKey].logo,
+        playerName: p.name,
+        playerNumber: p.number
+      });
+    }
+
+    function triggerSubAction(teamKey) {
+      const outP = getSelectedPlayer(teamKey, `select-${teamKey}-sub-out`);
+      const inP = getSelectedPlayer(teamKey, `select-${teamKey}-sub-in`);
+      triggerOverlay({
+        type: 'SUB',
+        team: teamKey,
+        teamName: state[teamKey].name,
+        teamLogo: state[teamKey].logo,
+        outName: outP.name,
+        outNumber: outP.number,
+        inName: inP.name,
+        inNumber: inP.number
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // GOOGLE GEMINI AI GENERATOR (TACTICAL COMMENTARY & SPORTS NEWS)
+    // -------------------------------------------------------------------------
+    async function runGeminiAI(mode) {
+      const apiKey = document.getElementById('input-gemini-key').value.trim();
+      const outputBox = document.getElementById('ai-output-box');
+      outputBox.value = '⏳ Sedang menganalisis data pertandingan real-time...';
+
+      const matchSummary = `
+        Pertandingan Futsal / Mini Soccer: ${state.home.name} (${state.home.score}) vs (${state.away.score}) ${state.away.name}.
+        Babak ke-${state.period}, Sisa Waktu: ${formatMMSS(state.timerSeconds)}.
+        Statistik:
+        - Shots: ${state.stats.shots[0]} vs ${state.stats.shots[1]}
+        - Shots on Target: ${state.stats.shotsOnTarget[0]} vs ${state.stats.shotsOnTarget[1]}
+        - Corners: ${state.stats.corners[0]} vs ${state.stats.corners[1]}
+        - Kartu Kuning: ${state.stats.yellowCards[0]} vs ${state.stats.yellowCards[1]}
+        - Kartu Merah: ${state.stats.redCards[0]} vs ${state.stats.redCards[1]}
+        - Ball Possession: ${state.stats.possession[0]}% vs ${state.stats.possession[1]}%
+      `;
+
+      const promptText =
+        mode === 'tactical'
+          ? `Anda adalah komentator taktis futsal profesional. Berikan komentar taktis singkat (3-4 kalimat tajam dan menarik dalam Bahasa Indonesia) berdasarkan data real-time berikut:\n${matchSummary}`
+          : `Anda adalah jurnalis berita olahraga nasional. Buat laporan berita pertandingan futsal lengkap dengan judul utama yang dramatis dan 2 paragraf isi berita berdasarkan data berikut:\n${matchSummary}`;
+
+      if (!apiKey) {
+        const leader =
+          state.home.score > state.away.score
+            ? state.home.name
+            : state.away.score > state.home.score
+            ? state.away.name
+            : 'Kedua tim imbang';
+
+        if (mode === 'tactical') {
+          const text = `[ANALISIS TAKTIS AI] Pertarungan sengit di Babak ${state.period}! ${leader} menunjukkan intensitas tinggi dengan penguasaan bola ${state.stats.possession[0]}% berbanding ${state.stats.possession[1]}%. Efektivitas penyelesaian akhir dari ${state.stats.shotsOnTarget[0] + state.stats.shotsOnTarget[1]} total tembakan tepat sasaran menjadi kunci utama jalannya laga ini.`;
+          outputBox.value = text;
+          state.aiTicker = text;
+        } else {
+          const text = `LAPORAN UTAMA: DUEL SENGIT ${state.home.name} KONTRA ${state.away.name} BERAKHIR ${state.home.score}-${state.away.score}\n\nArena bergemuruh menyaksikan duel berkelas antara ${state.home.name} menghadapi ${state.away.name} pada babak ke-${state.period}. Kedudukan tercatat ${state.home.score}-${state.away.score} dengan distribusi penguasaan bola ${state.stats.possession[0]}% berbanding ${state.stats.possession[1]}%.\n\nSepanjang laga, ${state.home.name} melepaskan ${state.stats.shots[0]} tembakan (${state.stats.shotsOnTarget[0]} tepat sasaran), sementara ${state.away.name} membalas dengan ${state.stats.shots[1]} percobaan (${state.stats.shotsOnTarget[1]} on target).`;
+          outputBox.value = text;
+          state.aiTicker = `BERITA TERKINI: ${state.home.name} ${state.home.score} - ${state.away.score} ${state.away.name}`;
+        }
+        renderAll();
+        broadcastState();
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }]
+            })
+          }
+        );
+        const data = await res.json();
+        const generated =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+          'Tidak ada respons dari Gemini API. Periksa API Key Anda.';
+        outputBox.value = generated;
+        state.aiTicker = generated.split('\n')[0].slice(0, 120);
+        renderAll();
+        broadcastState();
+      } catch (err) {
+        outputBox.value = 'Error memanggil Google Gemini API: ' + err.message;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // EVENT LISTENERS & UI CONTROLS
+    // -------------------------------------------------------------------------
+    function toggleModal(id, forceState) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isHidden = el.classList.contains('hidden');
+      const nextShow = typeof forceState === 'boolean' ? forceState : isHidden;
+      if (nextShow) {
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+      } else {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      }
+    }
+
+    // Top Header Buttons
+    document.getElementById('btn-open-stats').addEventListener('click', () => toggleModal('modal-stats', true));
+    document.getElementById('btn-close-stats').addEventListener('click', () => toggleModal('modal-stats', false));
+    document.getElementById('remote-open-stats-modal').addEventListener('click', () => {
+      toggleModal('modal-remote', false);
+      toggleModal('modal-stats', true);
+    });
+
+    document.getElementById('btn-open-remote').addEventListener('click', () => toggleModal('modal-remote', true));
+    document.getElementById('btn-close-remote').addEventListener('click', () => toggleModal('modal-remote', false));
+
+    document.getElementById('btn-open-shortcuts').addEventListener('click', () => toggleModal('modal-shortcuts', true));
+    document.getElementById('btn-close-shortcuts').addEventListener('click', () => toggleModal('modal-shortcuts', false));
+
+    document.getElementById('btn-sound-buzzer').addEventListener('click', playBuzzerSound);
+
+    // Remote Tabs Navigation
+    document.querySelectorAll('.remote-tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-tab');
+        document.querySelectorAll('.remote-tab-pane').forEach((p) => p.classList.add('hidden'));
+        document.getElementById(target).classList.remove('hidden');
+
+        document.querySelectorAll('.remote-tab-btn').forEach((b) => {
+          b.className = 'remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition';
+        });
+        btn.className = 'remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-500 text-slate-950 transition';
+      });
+    });
+
+    // Stage & Remote Timer Controls
+    function toggleTimer() {
+      state.timerRunning = !state.timerRunning;
+      renderAll();
+      broadcastState();
+    }
+    function resetTimer() {
+      state.timerRunning = false;
+      state.timerSeconds = state.defaultTimerSeconds;
+      renderAll();
+      broadcastState();
+    }
+
+    document.getElementById('stage-btn-toggle-timer').addEventListener('click', toggleTimer);
+    document.getElementById('stage-btn-reset-timer').addEventListener('click', resetTimer);
+    document.getElementById('remote-btn-start').addEventListener('click', () => {
+      state.timerRunning = true;
+      renderAll();
+      broadcastState();
+    });
+    document.getElementById('remote-btn-pause').addEventListener('click', () => {
+      state.timerRunning = false;
+      renderAll();
+      broadcastState();
+    });
+    document.getElementById('remote-btn-reset').addEventListener('click', resetTimer);
+
+    document.getElementById('remote-btn-set-timer').addEventListener('click', () => {
+      const m = Math.max(0, Number(document.getElementById('input-timer-min').value) || 0);
+      const s = Math.max(0, Math.min(59, Number(document.getElementById('input-timer-sec').value) || 0));
+      state.timerSeconds = m * 60 + s;
+      state.defaultTimerSeconds = state.timerSeconds;
+      state.timerRunning = false;
+      renderAll();
+      broadcastState();
+    });
+
+    // Period & Penalty Controls
+    document.getElementById('remote-period-plus').addEventListener('click', () => {
+      state.period = Math.min(9, state.period + 1);
+      renderAll();
+      broadcastState();
+    });
+    document.getElementById('remote-period-minus').addEventListener('click', () => {
+      state.period = Math.max(1, state.period - 1);
+      renderAll();
+      broadcastState();
+    });
+    document.getElementById('remote-toggle-penalty').addEventListener('click', () => {
+      state.penaltyMode = !state.penaltyMode;
+      renderAll();
+      broadcastState();
+    });
+    document.getElementById('remote-reset-penalty').addEventListener('click', () => {
+      state.home.penalties = [null, null, null, null, null, null, null];
+      state.away.penalties = [null, null, null, null, null, null, null];
+      renderAll();
+      broadcastState();
+    });
+
+    // Buzzer & Overlay Controls
+    document.getElementById('remote-btn-buzzer').addEventListener('click', playBuzzerSound);
+    document.getElementById('remote-btn-timeup').addEventListener('click', () => triggerOverlay({ type: 'TIMEUP' }));
+    document.getElementById('remote-btn-hide-overlay').addEventListener('click', hideOverlay);
+    document.getElementById('broadcast-overlay').addEventListener('click', hideOverlay);
+
+    // Home & Away Live Buttons
+    document.getElementById('remote-home-score-plus').addEventListener('click', () => changeScore('home', 1, true));
+    document.getElementById('remote-home-score-minus').addEventListener('click', () => changeScore('home', -1, false));
+    document.getElementById('btn-home-goal-overlay').addEventListener('click', () => changeScore('home', 1, true));
+
+    document.getElementById('remote-away-score-plus').addEventListener('click', () => changeScore('away', 1, true));
+    document.getElementById('remote-away-score-minus').addEventListener('click', () => changeScore('away', -1, false));
+    document.getElementById('btn-away-goal-overlay').addEventListener('click', () => changeScore('away', 1, true));
+
+    document.getElementById('btn-home-yc').addEventListener('click', () => triggerCardAction('home', 'YELLOW'));
+    document.getElementById('btn-home-rc').addEventListener('click', () => triggerCardAction('home', 'RED'));
+    document.getElementById('btn-away-yc').addEventListener('click', () => triggerCardAction('away', 'YELLOW'));
+    document.getElementById('btn-away-rc').addEventListener('click', () => triggerCardAction('away', 'RED'));
+
+    document.getElementById('btn-home-sub').addEventListener('click', () => triggerSubAction('home'));
+    document.getElementById('btn-away-sub').addEventListener('click', () => triggerSubAction('away'));
+
+    document.getElementById('btn-home-pen-goal').addEventListener('click', () => recordPenaltyAttempt('home', 'goal'));
+    document.getElementById('btn-home-pen-miss').addEventListener('click', () => recordPenaltyAttempt('home', 'miss'));
+    document.getElementById('btn-away-pen-goal').addEventListener('click', () => recordPenaltyAttempt('away', 'goal'));
+    document.getElementById('btn-away-pen-miss').addEventListener('click', () => recordPenaltyAttempt('away', 'miss'));
+
+    // Team Name & PNG Logo Upload
+    document.getElementById('input-home-name').addEventListener('input', (e) => {
+      state.home.name = e.target.value.toUpperCase();
+      renderAll();
+      broadcastState();
+    });
+    document.getElementById('input-away-name').addEventListener('input', (e) => {
+      state.away.name = e.target.value.toUpperCase();
+      renderAll();
+      broadcastState();
+    });
+
+    function handleLogoUpload(inputEl, teamKey) {
+      inputEl.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          state[teamKey].logo = reader.result;
+          renderAll();
+          broadcastState();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    handleLogoUpload(document.getElementById('input-home-logo'), 'home');
+    handleLogoUpload(document.getElementById('input-away-logo'), 'away');
+
+    // AI & Firebase Buttons
+    document.getElementById('btn-ai-tactical').addEventListener('click', () => runGeminiAI('tactical'));
+    document.getElementById('btn-ai-news').addEventListener('click', () => runGeminiAI('news'));
+    document.getElementById('btn-connect-firebase').addEventListener('click', () => {
+      const cfg = document.getElementById('input-firebase-config').value.trim();
+      const room = document.getElementById('input-room-id').value.trim();
+      if (!cfg) {
+        state.roomId = (room || 'ARENA-01').toUpperCase();
+        renderAll();
+        broadcastState();
+        alert(`Room ID diperbarui ke ${state.roomId} (Mode Sinkronisasi Lokal/Antar-Tab Aktif). Masukkan JSON Firebase jika ingin menghubungkan ke Cloud Firestore.`);
+        return;
+      }
+      connectFirebase(cfg, room);
+    });
+
+    // -------------------------------------------------------------------------
+    // 3. KEYBOARD SHORTCUTS ENGINE (NON-CONFLICTING OPERATOR HOTKEYS)
+    // -------------------------------------------------------------------------
+    window.addEventListener('keydown', (e) => {
+      // Ignore shortcuts when typing inside inputs, textareas, or selects
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        if (e.key === 'Escape') {
+          document.activeElement.blur();
+        }
+        return;
+      }
+
+      const key = e.key;
+      const upper = key.toUpperCase();
+
+      switch (key) {
+        case ' ':
+          e.preventDefault();
+          toggleTimer();
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          state.timerSeconds = Math.min(99 * 60, state.timerSeconds + 60);
+          renderAll();
+          broadcastState();
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          state.timerSeconds = Math.max(0, state.timerSeconds - 60);
+          renderAll();
+          broadcastState();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          state.timerSeconds = Math.min(99 * 60 + 59, state.timerSeconds + 1);
+          renderAll();
+          broadcastState();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          state.timerSeconds = Math.max(0, state.timerSeconds - 1);
+          renderAll();
+          broadcastState();
+          break;
+        case 'PageUp':
+          e.preventDefault();
+          triggerSubAction('home');
+          break;
+        case 'PageDown':
+          e.preventDefault();
+          triggerSubAction('away');
+          break;
+        case 'Escape':
+          hideOverlay();
+          toggleModal('modal-remote', false);
+          toggleModal('modal-stats', false);
+          toggleModal('modal-shortcuts', false);
+          break;
+        default:
+          break;
+      }
+
+      // Letter Hotkeys
+      switch (upper) {
+        case 'Q':
+          changeScore('home', 1, true);
+          break;
+        case 'A':
+          changeScore('home', -1, false);
+          break;
+        case 'P':
+          changeScore('away', 1, true);
+          break;
+        case 'L':
+          changeScore('away', -1, false);
+          break;
+        case 'K':
+          state.period = Math.min(9, state.period + 1);
+          renderAll();
+          broadcastState();
+          break;
+        case 'J':
+          state.period = Math.max(1, state.period - 1);
+          renderAll();
+          broadcastState();
+          break;
+        case 'T':
+          recordPenaltyAttempt('home', 'goal');
+          break;
+        case 'G':
+          recordPenaltyAttempt('home', 'miss');
+          break;
+        case 'Y':
+          recordPenaltyAttempt('away', 'goal');
+          break;
+        case 'H':
+          if (state.penaltyMode && !e.shiftKey) {
+            recordPenaltyAttempt('away', 'miss');
+          } else {
+            toggleModal('modal-remote');
+          }
+          break;
+        case 'M':
+          toggleModal('modal-remote');
+          break;
+        case 'Z':
+          triggerCardAction('home', 'YELLOW');
+          break;
+        case 'X':
+          triggerCardAction('away', 'YELLOW');
+          break;
+        case 'C':
+          triggerCardAction('home', 'RED');
+          break;
+        case 'V':
+          triggerCardAction('away', 'RED');
+          break;
+        default:
+          break;
+      }
+    });
+
+    // Initialize Icons & Initial Render
+    lucide.createIcons();
+    renderRosterEditor();
+    renderAll();
+  </script>
+</body>
+</html>
