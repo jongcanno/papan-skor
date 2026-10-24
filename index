@@ -1,21 +1,83 @@
+Conversation Log
+browser  /Bertindaklah sebagai Senior Full-Stack Developer spesialis aplikasi broadcast dan olahraga. 
+
+Tolong buatkan aplikasi web papan skor digital (digital scoreboard) interaktif, responsif, dan real-time untuk pertandingan futsal/mini soccer dalam satu file HTML tunggal yang mencakup HTML, Tailwind CSS, JavaScript (ES6 Modules), dan integrasi Firebase Firestore untuk sinkronisasi perangkat (Display Utama & Controller/Remote terpisah).
+
+Berikut adalah spesifikasi lengkap aplikasi yang diinginkan:
+
+1. ARSITEKTUR & TAMPILAN UTAMA (DISPLAY MODE)
+- Rasio 1600x1200 (Hi-Res 4:3) dengan skala responsif agar muat di berbagai layar broadcast.
+- Tema visual: "Premium Dark Neon" (Latar belakang gelap bergradasi, teks skor besar dengan efek LED/neon glowing menggunakan font Chakra Petch & Outfit/Enforce).
+- Layout: 
+  * Header atas minimalis: Ikon trofi kecil di tengah, serta tombol ikon (Statistik, Remote, Buzzer, Bantuan Keyboard) di pojok kanan atas.
+  * Sisi kiri & kanan: Logo tim, nama tim, skor besar, dan grid indikator adu penalti (hijau/merah).
+  * Bagian tengah: Kotak Timer digital (Count-down) di atas, serta Indikator Babak (Period) di bawahnya.
+
+2. FITUR MANAJEMEN & REMOTE KONTROL
+- Manajemen Tim: Input nama tim, unggah logo tim transparan (format PNG), dan kuota pas 9 pemain per tim (5 Utama, 2 Cadangan, 2 Official) lengkap dengan nomor punggung dan nama.
+- Kontrol Waktu: Tombol Start, Pause, Reset, Set Timer Manual (menit & detik), serta suara Buzzer otomatis + pop-up "WAKTU HABIS" saat timer menyentuh 00:00.
+- Mode Pinalti (Penentuan): Tombol untuk mengaktifkan mode adu penalti (menampilkan 7 kotak dot penendang di bawah skor).
+- Analisis & Laporan AI: Tombol generator komentar taktis pertandingan dan laporan berita olahraga otomatis menggunakan Google Gemini API.
+
+3. SHORTCUT KEYBOARD (KONTROL CEPAT OPERATOR)
+Pastikan semua shortcut keyboard berikut aktif dan tidak berkonflik:
+- Spasi: Start / Pause Timer
+- Panah Atas / Bawah: Tambah / Kurang waktu (menit)
+- Panah Kanan / Kiri: Tambah / Kurang waktu (detik)
+- Q / A: Tambah / Kurang Skor Tim Home
+- P / L: Tambah / Kurang Skor Tim Away
+- K / J: Tambah / Kurang Babak (Period)
+- T / G: Gol / Gagal Penalti Tim Home
+- Y / H: Gol / Gagal Penalti Tim Away
+- Z / X: Kartu Kuning (Home / Away)
+- C / V: Kartu Merah (Home / Away)
+- PageUp / PageDown: Pergantian Pemain (Substitusi Home / Away)
+- M / H: Buka/Tutup Panel Remote Controller
+
+4. ANIMASI POP-UP OVERLAY (LAYAR UTAMA)
+Setiap kali operator memicu aksi melalui remote atau keyboard, tampilkan layar penuh overlay dengan animasi transisi masuk yang mulus dari kiri ke kanan:
+- Pop-up Gol: Judul masif "GOOOAAAAL!!!!!!", menampilkan nama pemain pencetak gol, nomor punggung, dan meminjam logo tim/foto sebagai avatar. Disertai efek suara (TTS) otomatis.
+- Pop-up Kartu (Kuning/Merah): Menampilkan jenis kartu, nama pemain, dan nomor punggung.
+- Pop-up Substitusi: Menampilkan pemain yang keluar (ikon hijau) dan masuk (ikon merah) beserta nomor punggungnya.
+
+5. FITUR STATISTIK LENGKAP ("IN THE MATCH")
+- Pop-up/Modal Statistik yang dapat diakses dari ikon di kanan atas atau panel remote.
+- Menampilkan ringkasan skor di bagian atas, serta bar perbandingan visual untuk: Shots, Shots on Target, Corners, Yellow Cards, Red Cards, dan Ball Possession (dalam bentuk persentase %).
+
+Tolong berikan kode lengkap, bersih, terstruktur, bebas dari error sintaks, dan siap dijalankan (self-contained).
+
+Saya telah meluncurkan agen Browser () untuk membuka dan menguji aplikasi papan skor digital index.html secara langsung di browser (menguji tampilan 1600×1200 Dark Neon, animasi pop-up Gol, panel Remote Controller, dan modal Statistik). Mohon tunggu sebentar sementara pengujian berlangsung.
+
+Aplikasi web Papan Skor Digital (Digital Scoreboard) Futsal / Mini Soccer telah selesai dibuat di index.html dan baru saja dibuka secara otomatis di browser utama Anda.
+
+TIP
+
+Catatan untuk Agen /browser Otomatis: Agen mendeteksi bahwa fitur Remote Debugging di Google Chrome belum diaktifkan (DevToolsActivePort tidak ditemukan). Jika Anda ingin agen mengklik dan menguji halaman secara otomatis di dalam Chrome, buka chrome://inspect/#remote-debugging di Google Chrome Anda untuk mengaktifkannya. Namun, aplikasi sudah langsung terbuka di browser Anda saat ini dan siap digunakan sepenuhnya!
+
+Panduan Singkat Penggunaan & Sinkronisasi 2 Layar (Display & Remote)
+Sinkronisasi Instan 2 Layar (Tanpa Setup Server):
+Buka file index.html di Tab/Jendela Pertama (geser ke TV/Proyektor sebagai Layar Display Utama).
+Buka file index.html lagi di Tab/Jendela Kedua (tekan tombol M untuk membuka Panel Remote Controller di layar laptop operator).
+Setiap perubahan skor, timer, kartu, substitusi, atau adu penalti di Remote akan langsung muncul secara real-time beserta animasi sweep kiri-ke-kanan dan efek suara di layar Display!
+Sinkronisasi Lintas Perangkat (HP/Tablet ke PC/TV via Firebase Firestore):
+Buka panel Remote (M) -> tab 4. AI Gemini & Firebase Sync.
+Tempelkan konfigurasi JSON firebaseConfig proyek Firebase Anda dan klik Hubungkan / Sinkronkan.
+Kode Lengkap (index.html — Self-Contained Single File)
+html
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PRO FUTSAL / MINI SOCCER SCOREBOARD — Premium Dark Neon</title>
-
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
   <!-- Google Fonts: Chakra Petch & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -38,18 +100,15 @@
       }
     };
   </script>
-
   <style>
     :root {
       --stage-w: 1600;
       --stage-h: 1200;
     }
-
     * {
       box-sizing: border-box;
       user-select: none;
     }
-
     body {
       margin: 0;
       padding: 0;
@@ -63,7 +122,6 @@
       align-items: center;
       justify-content: center;
     }
-
     /* Ambient Neon Grid Background */
     .cyber-bg {
       background-image:
@@ -73,7 +131,6 @@
         linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
       background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
     }
-
     /* 1600x1200 Responsive Broadcast Stage */
     #broadcast-stage {
       width: 1600px;
@@ -84,7 +141,6 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 0 90px rgba(0, 0, 0, 0.9), inset 0 0 60px rgba(0, 243, 255, 0.04);
     }
-
     /* Neon LED Text Glows */
     .neon-score-home {
       font-family: 'Chakra Petch', monospace;
@@ -95,7 +151,6 @@
         0 0 65px rgba(0, 243, 255, 0.4),
         0 0 110px rgba(0, 243, 255, 0.25);
     }
-
     .neon-score-away {
       font-family: 'Chakra Petch', monospace;
       color: #ffe5f2;
@@ -105,7 +160,6 @@
         0 0 65px rgba(255, 0, 127, 0.4),
         0 0 110px rgba(255, 0, 127, 0.25);
     }
-
     .neon-timer {
       font-family: 'Chakra Petch', monospace;
       color: #ffffff;
@@ -114,7 +168,6 @@
         0 0 28px rgba(0, 255, 102, 0.5),
         0 0 60px rgba(0, 255, 102, 0.25);
     }
-
     .neon-timer-danger {
       font-family: 'Chakra Petch', monospace;
       color: #ffe4e8;
@@ -123,14 +176,12 @@
         0 0 32px rgba(255, 30, 66, 0.7),
         0 0 70px rgba(255, 30, 66, 0.45);
     }
-
     .neon-box {
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.88) 0%, rgba(7, 11, 22, 0.95) 100%);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.15);
     }
-
     /* Fullscreen Broadcast Overlay Animation (Left to Right Sweep) */
     .overlay-sweep {
       transform: translateX(-105%);
@@ -138,31 +189,26 @@
       pointer-events: none;
       transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
     }
-
     .overlay-sweep.active {
       transform: translateX(0%);
       opacity: 1;
       pointer-events: auto;
     }
-
     .overlay-sweep.exit-right {
       transform: translateX(105%);
       opacity: 0;
     }
-
     /* Penalty Dot Glows */
     .pen-dot-goal {
       background: #00ff66;
       box-shadow: 0 0 16px #00ff66, 0 0 30px rgba(0, 255, 102, 0.6);
       border-color: #86efac;
     }
-
     .pen-dot-miss {
       background: #ff1e42;
       box-shadow: 0 0 16px #ff1e42, 0 0 30px rgba(255, 30, 66, 0.6);
       border-color: #fda4af;
     }
-
     /* Custom Scrollbar for Modals / Remote */
     ::-webkit-scrollbar {
       width: 6px;
@@ -178,7 +224,6 @@
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(0, 243, 255, 0.65);
     }
-
     @keyframes pulse-fast {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.04); }
@@ -189,12 +234,10 @@
   </style>
 </head>
 <body>
-
   <!-- =========================================================================
        1600x1200 BROADCAST DISPLAY STAGE (4:3 HI-RES)
   ========================================================================== -->
   <div id="broadcast-stage" class="cyber-bg flex flex-col justify-between p-10 select-none">
-
     <!-- TOP HEADER: Minimalist Trophy Center + Right Action Icons -->
     <header class="relative flex items-center justify-between h-20 px-6 rounded-2xl neon-box border-white/10">
       <!-- Left Status Badge: Sync / Mode -->
@@ -207,7 +250,6 @@
           ROOM: ARENA-01
         </span>
       </div>
-
       <!-- Center Minimalist Trophy Icon & Competition Title -->
       <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-3.5">
         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400/20 to-yellow-600/20 border border-amber-400/40 flex items-center justify-center shadow-[0_0_25px_rgba(251,191,36,0.3)]">
@@ -222,7 +264,6 @@
           </div>
         </div>
       </div>
-
       <!-- Top Right Control Icons: Statistik, Remote, Buzzer, Bantuan Keyboard -->
       <div class="flex items-center gap-2.5">
         <button id="btn-open-stats" title="Statistik Pertandingan (In The Match)"
@@ -230,55 +271,45 @@
           <i data-lucide="bar-chart-3" class="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform"></i>
           <span class="text-xs font-semibold tracking-wider text-slate-200">STATISTIK</span>
         </button>
-
         <button id="btn-open-remote" title="Panel Remote Controller (M)"
           class="group flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-pink-500/20 border border-white/10 hover:border-pink-400/50 transition-all">
           <i data-lucide="Sliders" class="w-5 h-5 text-pink-400 group-hover:scale-110 transition-transform"></i>
           <span class="text-xs font-semibold tracking-wider text-slate-200">REMOTE</span>
         </button>
-
         <button id="btn-sound-buzzer" title="Bunyikan Buzzer Horn"
           class="group flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-amber-500/20 border border-white/10 hover:border-amber-400/50 transition-all">
           <i data-lucide="volume-2" class="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform"></i>
           <span class="text-xs font-semibold tracking-wider text-slate-200">BUZZER</span>
         </button>
-
         <button id="btn-open-shortcuts" title="Bantuan Shortcut Keyboard (?)"
           class="group flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800/80 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-400/50 transition-all">
           <i data-lucide="keyboard" class="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform"></i>
         </button>
       </div>
     </header>
-
     <!-- MAIN ARENA DISPLAY GRID: Left (Home) | Center (Timer & Period) | Right (Away) -->
     <main class="grid grid-cols-12 gap-8 items-center my-auto py-4">
-
       <!-- ======================== HOME TEAM (LEFT) ======================== -->
       <section class="col-span-4 flex flex-col items-center justify-between neon-box rounded-3xl p-8 border-t-4 border-t-cyan-400 relative overflow-hidden min-h-[820px]">
         <div class="absolute -top-24 -left-24 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
         <!-- Home Badge + Team Logo -->
         <div class="flex flex-col items-center w-full">
           <span class="px-4 py-1 rounded-full text-xs font-bold tracking-[0.25em] uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-400/30 mb-5">
             HOME TEAM
           </span>
-
           <div class="w-44 h-44 rounded-3xl bg-slate-900/90 border-2 border-cyan-400/30 shadow-[0_0_40px_rgba(0,243,255,0.18)] flex items-center justify-center p-4 mb-5 overflow-hidden">
             <img id="display-home-logo" src="" alt="Home Logo" class="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(0,243,255,0.5)]" />
           </div>
-
           <h2 id="display-home-name" class="text-4xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_2px_10px_rgba(0,243,255,0.35)] line-clamp-1">
             GARUDA MUDA FC
           </h2>
         </div>
-
         <!-- Giant Neon LED Score -->
         <div class="my-2 flex items-center justify-center">
           <div id="display-home-score" class="text-[210px] leading-none font-bold neon-score-home select-none">
             0
           </div>
         </div>
-
         <!-- Quick Foul / Card Pills -->
         <div class="flex items-center gap-4 mb-3">
           <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/30">
@@ -292,7 +323,6 @@
             <span id="display-home-rc" class="font-digital font-bold text-lg text-rose-400">0</span>
           </div>
         </div>
-
         <!-- Penalty Shootout 7-Dot Indicator Grid (Home) -->
         <div id="home-penalty-panel" class="w-full pt-4 border-t border-white/10 transition-opacity duration-300">
           <div class="flex items-center justify-between mb-2">
@@ -304,10 +334,8 @@
           </div>
         </div>
       </section>
-
       <!-- ======================== CENTER TIMER & PERIOD ======================== -->
       <section class="col-span-4 flex flex-col items-center justify-center gap-7">
-
         <!-- Digital Countdown Timer Box -->
         <div class="w-full neon-box rounded-3xl p-8 border-2 border-emerald-400/30 shadow-[0_0_60px_rgba(0,255,102,0.12)] flex flex-col items-center relative overflow-hidden">
           <div class="flex items-center gap-2.5 mb-2">
@@ -316,11 +344,9 @@
               READY / PAUSED
             </span>
           </div>
-
           <div id="display-timer" class="text-[128px] leading-none font-bold tracking-wider neon-timer my-2">
             20:00
           </div>
-
           <!-- Quick On-Screen Timer Controls for Convenience -->
           <div class="flex items-center gap-3 mt-4">
             <button id="stage-btn-toggle-timer" class="px-5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-300 text-xs font-bold tracking-widest uppercase transition">
@@ -331,7 +357,6 @@
             </button>
           </div>
         </div>
-
         <!-- Period / Babak Indicator Box -->
         <div class="w-full neon-box rounded-3xl p-7 border border-white/15 flex flex-col items-center">
           <span class="text-xs font-bold tracking-[0.35em] uppercase text-slate-400 mb-2">
@@ -349,7 +374,6 @@
             ★ MODE ADU PENALTI AKTIF ★
           </div>
         </div>
-
         <!-- Live Match Possession & AI Tactical Ticker -->
         <div class="w-full neon-box rounded-3xl p-6 border border-white/10">
           <div class="flex items-center justify-between text-xs font-bold tracking-wider uppercase text-slate-400 mb-2">
@@ -361,7 +385,6 @@
             <div id="mini-poss-bar-home" class="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 rounded-l-full transition-all duration-500" style="width: 50%"></div>
             <div id="mini-poss-bar-away" class="h-full bg-gradient-to-l from-pink-500 to-rose-400 rounded-r-full transition-all duration-500" style="width: 50%"></div>
           </div>
-
           <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
             <div class="flex items-center gap-2 text-xs text-slate-300 truncate">
               <i data-lucide="sparkles" class="w-4 h-4 text-amber-400 shrink-0"></i>
@@ -370,33 +393,27 @@
           </div>
         </div>
       </section>
-
       <!-- ======================== AWAY TEAM (RIGHT) ======================== -->
       <section class="col-span-4 flex flex-col items-center justify-between neon-box rounded-3xl p-8 border-t-4 border-t-pink-500 relative overflow-hidden min-h-[820px]">
         <div class="absolute -top-24 -right-24 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
         <!-- Away Badge + Team Logo -->
         <div class="flex flex-col items-center w-full">
           <span class="px-4 py-1 rounded-full text-xs font-bold tracking-[0.25em] uppercase bg-pink-500/15 text-pink-300 border border-pink-400/30 mb-5">
             AWAY TEAM
           </span>
-
           <div class="w-44 h-44 rounded-3xl bg-slate-900/90 border-2 border-pink-500/30 shadow-[0_0_40px_rgba(255,0,127,0.18)] flex items-center justify-center p-4 mb-5 overflow-hidden">
             <img id="display-away-logo" src="" alt="Away Logo" class="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,0,127,0.5)]" />
           </div>
-
           <h2 id="display-away-name" class="text-4xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_2px_10px_rgba(255,0,127,0.35)] line-clamp-1">
             BINTANG TIMUR FC
           </h2>
         </div>
-
         <!-- Giant Neon LED Score -->
         <div class="my-2 flex items-center justify-center">
           <div id="display-away-score" class="text-[210px] leading-none font-bold neon-score-away select-none">
             0
           </div>
         </div>
-
         <!-- Quick Foul / Card Pills -->
         <div class="flex items-center gap-4 mb-3">
           <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/30">
@@ -410,7 +427,6 @@
             <span id="display-away-rc" class="font-digital font-bold text-lg text-rose-400">0</span>
           </div>
         </div>
-
         <!-- Penalty Shootout 7-Dot Indicator Grid (Away) -->
         <div id="away-penalty-panel" class="w-full pt-4 border-t border-white/10 transition-opacity duration-300">
           <div class="flex items-center justify-between mb-2">
@@ -423,7 +439,6 @@
         </div>
       </section>
     </main>
-
     <!-- FOOTER SHORTCUT BAR -->
     <footer class="h-14 px-6 rounded-2xl neon-box border-white/10 flex items-center justify-between text-xs text-slate-400">
       <div class="flex items-center gap-4 flex-wrap">
@@ -441,19 +456,15 @@
         <span><kbd class="px-2 py-0.5 rounded bg-slate-800 text-white border border-white/20 font-digital">M</kbd> Remote Panel</span>
       </div>
     </footer>
-
     <!-- =======================================================================
          4. FULLSCREEN ANIMATED POP-UP OVERLAYS (LEFT-TO-RIGHT SWEEP)
     ======================================================================== -->
-
     <!-- OVERLAY: GOAL / KARTU / SUBSTITUSI / WAKTU HABIS -->
     <div id="broadcast-overlay" class="overlay-sweep absolute inset-0 z-40 flex items-center justify-center bg-slate-950/92 backdrop-blur-xl p-12">
       <!-- Dynamic Content Injected by JS -->
       <div id="broadcast-overlay-content" class="w-full max-w-5xl"></div>
     </div>
-
   </div><!-- /#broadcast-stage -->
-
   <!-- =========================================================================
        5. MODAL STATISTIK LENGKAP ("IN THE MATCH")
   ========================================================================== -->
@@ -474,7 +485,6 @@
           <i data-lucide="x" class="w-6 h-6"></i>
         </button>
       </div>
-
       <!-- Top Score Summary -->
       <div class="grid grid-cols-3 items-center py-6 px-8 my-5 rounded-2xl bg-slate-900/90 border border-white/10">
         <div class="flex items-center gap-4">
@@ -484,13 +494,11 @@
             <div id="stats-home-name" class="text-xl font-black uppercase text-white">GARUDA MUDA FC</div>
           </div>
         </div>
-
         <div class="flex items-center justify-center gap-6">
           <span id="stats-home-score" class="text-6xl font-digital font-bold text-cyan-300">0</span>
           <span class="text-2xl font-bold text-slate-500">—</span>
           <span id="stats-away-score" class="text-6xl font-digital font-bold text-pink-400">0</span>
         </div>
-
         <div class="flex items-center justify-end gap-4 text-right">
           <div>
             <div class="text-xs text-pink-400 font-bold tracking-widest uppercase">AWAY</div>
@@ -499,14 +507,12 @@
           <img id="stats-away-logo" src="" alt="Away" class="w-16 h-16 object-contain" />
         </div>
       </div>
-
       <!-- Comparison Bars Container -->
       <div id="stats-bars-container" class="space-y-5 py-2">
         <!-- Populated dynamically via renderStatsModal() -->
       </div>
     </div>
   </div>
-
   <!-- =========================================================================
        SHORTCUT KEYBOARD HELP MODAL
   ========================================================================== -->
@@ -526,7 +532,6 @@
           <i data-lucide="x" class="w-6 h-6"></i>
         </button>
       </div>
-
       <div class="grid grid-cols-2 gap-4 mt-6 text-sm">
         <div class="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 flex justify-between items-center">
           <span class="text-slate-300">Start / Pause Timer</span>
@@ -582,13 +587,11 @@
       </p>
     </div>
   </div>
-
   <!-- =========================================================================
        2. REMOTE CONTROLLER & OPERATOR PANEL DRAWER/MODAL (M / H)
   ========================================================================== -->
   <div id="modal-remote" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-lg p-4 md:p-6">
     <div class="w-full max-w-7xl h-[92vh] neon-box rounded-3xl border border-pink-500/30 flex flex-col overflow-hidden shadow-2xl">
-
       <!-- Remote Top Bar -->
       <div class="flex flex-wrap items-center justify-between px-6 py-4 bg-slate-900/90 border-b border-white/10 gap-4">
         <div class="flex items-center gap-3">
@@ -600,7 +603,6 @@
             <p class="text-xs text-slate-400">Sinkronisasi Real-Time (Firebase Firestore + BroadcastChannel) • Tekan <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-pink-300">M</kbd> untuk tutup</p>
           </div>
         </div>
-
         <!-- Remote Navigation Tabs -->
         <div class="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-2xl border border-white/10">
           <button data-tab="tab-live" class="remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-500 text-slate-950 transition">
@@ -616,27 +618,22 @@
             4. AI Gemini & Firebase Sync
           </button>
         </div>
-
         <button id="btn-close-remote" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-white/10 transition">
           <i data-lucide="x" class="w-6 h-6"></i>
         </button>
       </div>
-
       <!-- Remote Body Content -->
       <div class="flex-1 overflow-y-auto p-6 space-y-6">
-
         <!-- ======================= TAB 1: LIVE MATCH & TIMER ======================= -->
         <div id="tab-live" class="remote-tab-pane space-y-6">
           <!-- Timer & Period Row -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
             <!-- Timer Controller -->
             <div class="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">KONTROL WAKTU (TIMER)</span>
                 <span id="remote-timer-preview" class="text-2xl font-digital font-bold text-white">20:00</span>
               </div>
-
               <div class="grid grid-cols-3 gap-2.5">
                 <button id="remote-btn-start" class="py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition">
                   ▶ START
@@ -648,7 +645,6 @@
                   ↺ RESET
                 </button>
               </div>
-
               <!-- Set Manual Minutes & Seconds -->
               <div class="pt-3 border-t border-white/10">
                 <label class="block text-xs text-slate-400 mb-2">Set Timer Manual (Menit & Detik):</label>
@@ -662,14 +658,12 @@
                 </div>
               </div>
             </div>
-
             <!-- Period & Penalty Mode Controller -->
             <div class="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold uppercase tracking-widest text-amber-400">BABAK & MODE PENALTI</span>
                 <span id="remote-period-preview" class="text-2xl font-digital font-bold text-amber-300">Babak 1</span>
               </div>
-
               <div class="flex items-center gap-3">
                 <button id="remote-period-minus" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 font-bold text-sm">
                   - Babak (J)
@@ -678,7 +672,6 @@
                   + Babak (K)
                 </button>
               </div>
-
               <div class="pt-3 border-t border-white/10 flex flex-col gap-2.5">
                 <button id="remote-toggle-penalty" class="w-full py-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/40 text-rose-300 font-bold text-xs uppercase tracking-widest transition">
                   ⚽ AKTIFKAN / NONAKTIFKAN MODE PENALTI
@@ -688,7 +681,6 @@
                 </button>
               </div>
             </div>
-
             <!-- Quick Buzzer & Broadcast Actions -->
             <div class="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4">
               <span class="text-xs font-bold uppercase tracking-widest text-cyan-400">OVERLAY & EFEK BROADCAST</span>
@@ -705,10 +697,8 @@
               </div>
             </div>
           </div>
-
           <!-- HOME & AWAY ACTION TRIGGERS (GOAL, CARD, SUBSTITUTION, PENALTY) -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
             <!-- HOME TEAM LIVE ACTIONS -->
             <div class="p-6 rounded-2xl bg-slate-900/90 border-2 border-cyan-500/30 space-y-5">
               <div class="flex items-center justify-between border-b border-white/10 pb-3">
@@ -722,7 +712,6 @@
                   <button id="remote-home-score-plus" class="w-10 h-10 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-lg">+ (Q)</button>
                 </div>
               </div>
-
               <!-- Player Selector for Goal / Card -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
@@ -735,7 +724,6 @@
                   </button>
                 </div>
               </div>
-
               <!-- Cards Trigger -->
               <div class="grid grid-cols-2 gap-3">
                 <button id="btn-home-yc" class="py-2.5 px-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/35 border border-amber-400/40 text-amber-300 font-bold text-xs uppercase tracking-wider">
@@ -745,7 +733,6 @@
                   🟥 KARTU MERAH (C)
                 </button>
               </div>
-
               <!-- Substitution Selector -->
               <div class="pt-3 border-t border-white/10 space-y-2">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">Pergantian Pemain (Substitusi — PageUp):</label>
@@ -763,7 +750,6 @@
                   🔄 TAMPILKAN POP-UP SUBSTITUSI HOME (PageUp)
                 </button>
               </div>
-
               <!-- Penalty Buttons -->
               <div class="pt-3 border-t border-white/10 flex items-center gap-3">
                 <button id="btn-home-pen-goal" class="flex-1 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-300 font-bold text-xs uppercase">
@@ -774,7 +760,6 @@
                 </button>
               </div>
             </div>
-
             <!-- AWAY TEAM LIVE ACTIONS -->
             <div class="p-6 rounded-2xl bg-slate-900/90 border-2 border-pink-500/30 space-y-5">
               <div class="flex items-center justify-between border-b border-white/10 pb-3">
@@ -788,7 +773,6 @@
                   <button id="remote-away-score-plus" class="w-10 h-10 rounded-xl bg-pink-500 hover:bg-pink-400 text-white font-black text-lg">+ (P)</button>
                 </div>
               </div>
-
               <!-- Player Selector for Goal / Card -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
@@ -801,7 +785,6 @@
                   </button>
                 </div>
               </div>
-
               <!-- Cards Trigger -->
               <div class="grid grid-cols-2 gap-3">
                 <button id="btn-away-yc" class="py-2.5 px-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/35 border border-amber-400/40 text-amber-300 font-bold text-xs uppercase tracking-wider">
@@ -811,7 +794,6 @@
                   🟥 KARTU MERAH (V)
                 </button>
               </div>
-
               <!-- Substitution Selector -->
               <div class="pt-3 border-t border-white/10 space-y-2">
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">Pergantian Pemain (Substitusi — PageDown):</label>
@@ -829,7 +811,6 @@
                   🔄 TAMPILKAN POP-UP SUBSTITUSI AWAY (PageDown)
                 </button>
               </div>
-
               <!-- Penalty Buttons -->
               <div class="pt-3 border-t border-white/10 flex items-center gap-3">
                 <button id="btn-away-pen-goal" class="flex-1 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-300 font-bold text-xs uppercase">
@@ -840,18 +821,14 @@
                 </button>
               </div>
             </div>
-
           </div>
         </div>
-
         <!-- ======================= TAB 2: MANAJEMEN TIM & 9 PEMAIN ======================= -->
         <div id="tab-teams" class="remote-tab-pane hidden space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
             <!-- HOME TEAM ROSTER (9 SLOTS: 5 Utama, 2 Cadangan, 2 Official) -->
             <div class="p-6 rounded-2xl bg-slate-900/90 border border-cyan-500/30 space-y-4">
               <h3 class="text-lg font-black uppercase tracking-wider text-cyan-300">MANAJEMEN TIM HOME (9 KUOTA)</h3>
-
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-xs text-slate-400 mb-1">Nama Tim Home:</label>
@@ -862,17 +839,14 @@
                   <input id="input-home-logo" type="file" accept="image/png,image/*" class="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30" />
                 </div>
               </div>
-
               <div class="space-y-2 pt-2">
                 <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Daftar 9 Personel (5 Utama • 2 Cadangan • 2 Official)</div>
                 <div id="roster-home-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
               </div>
             </div>
-
             <!-- AWAY TEAM ROSTER (9 SLOTS: 5 Utama, 2 Cadangan, 2 Official) -->
             <div class="p-6 rounded-2xl bg-slate-900/90 border border-pink-500/30 space-y-4">
               <h3 class="text-lg font-black uppercase tracking-wider text-pink-400">MANAJEMEN TIM AWAY (9 KUOTA)</h3>
-
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-xs text-slate-400 mb-1">Nama Tim Away:</label>
@@ -883,16 +857,13 @@
                   <input id="input-away-logo" type="file" accept="image/png,image/*" class="w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-pink-500/20 file:text-pink-300 hover:file:bg-pink-500/30" />
                 </div>
               </div>
-
               <div class="space-y-2 pt-2">
                 <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Daftar 9 Personel (5 Utama • 2 Cadangan • 2 Official)</div>
                 <div id="roster-away-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
               </div>
             </div>
-
           </div>
         </div>
-
         <!-- ======================= TAB 3: STATISTIK PERTANDINGAN ======================= -->
         <div id="tab-stats" class="remote-tab-pane hidden space-y-6">
           <div class="p-6 rounded-2xl bg-slate-900/90 border border-white/10 space-y-5">
@@ -905,17 +876,14 @@
                 Tampilkan Modal Statistik di Layar
               </button>
             </div>
-
             <div id="remote-stats-editor" class="space-y-4">
               <!-- Populated dynamically via JS -->
             </div>
           </div>
         </div>
-
         <!-- ======================= TAB 4: AI GEMINI & FIREBASE SYNC ======================= -->
         <div id="tab-ai" class="remote-tab-pane hidden space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
             <!-- Google Gemini AI Tactical & News Generator -->
             <div class="p-6 rounded-2xl bg-slate-900/90 border border-amber-400/30 space-y-4">
               <div class="flex items-center gap-3">
@@ -925,12 +893,10 @@
                   <p class="text-xs text-slate-400">Generator komentar taktis & laporan berita olahraga otomatis</p>
                 </div>
               </div>
-
               <div>
                 <label class="block text-xs text-slate-400 mb-1">Google Gemini API Key (Opsional — fallback cerdas tersedia jika kosong):</label>
                 <input id="input-gemini-key" type="password" placeholder="AIzaSy..." class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-sm text-white" />
               </div>
-
               <div class="grid grid-cols-2 gap-3">
                 <button id="btn-ai-tactical" class="py-3 px-4 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/40 text-amber-300 font-bold text-xs uppercase tracking-wider transition">
                   ⚡ GENERATE KOMENTAR TAKTIS
@@ -939,13 +905,11 @@
                   📰 GENERATE BERITA OLAHRAGA
                 </button>
               </div>
-
               <div>
                 <label class="block text-xs text-slate-400 mb-1">Hasil Analisis / Laporan AI:</label>
                 <textarea id="ai-output-box" rows="8" readonly class="w-full p-4 rounded-2xl bg-slate-950 border border-white/15 text-sm text-slate-200 leading-relaxed" placeholder="Klik salah satu tombol di atas untuk menghasilkan analisis taktis atau artikel berita pertandingan secara real-time..."></textarea>
               </div>
             </div>
-
             <!-- Firebase Firestore Multi-Device Sync Configuration -->
             <div class="p-6 rounded-2xl bg-slate-900/90 border border-emerald-400/30 space-y-4">
               <div class="flex items-center gap-3">
@@ -955,7 +919,6 @@
                   <p class="text-xs text-slate-400">Hubungkan Display Utama & Remote di perangkat berbeda secara real-time</p>
                 </div>
               </div>
-
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs text-slate-400 mb-1">Match Room ID:</label>
@@ -967,25 +930,20 @@
                   </button>
                 </div>
               </div>
-
               <div>
                 <label class="block text-xs text-slate-400 mb-1">Firebase Config JSON (Paste objek firebaseConfig proyek Anda):</label>
                 <textarea id="input-firebase-config" rows="6" class="w-full p-3 rounded-xl bg-slate-950 border border-white/15 font-mono text-xs text-slate-300" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
               </div>
-
               <div class="p-3.5 rounded-xl bg-slate-950/90 border border-white/10 text-xs text-slate-400 space-y-1">
                 <div class="font-bold text-slate-200">Status Sinkronisasi: <span id="firebase-status-detail" class="text-emerald-400">BroadcastChannel & LocalStorage Aktif (Instan Antar-Tab)</span></div>
                 <p>Buka file HTML ini di 2 tab/jendela browser pada perangkat yang sama untuk langsung sinkron otomatis tanpa setup, atau masukkan JSON Firebase Firestore di atas untuk sinkronisasi lintas perangkat (HP/Tablet ke TV Broadcast).</p>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   </div>
-
   <!-- =========================================================================
        ES6 MODULE SCRIPT: STATE, AUDIO SYNTH/TTS, FIREBASE SYNC, UI & SHORTCUTS
   ========================================================================== -->
@@ -997,7 +955,6 @@
       setDoc,
       onSnapshot
     } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
     // -------------------------------------------------------------------------
     // DEFAULT SVG LOGOS (Transparent PNG/SVG Data URLs)
     // -------------------------------------------------------------------------
@@ -1014,7 +971,6 @@
         <polygon points="100,52 114,82 146,86 122,108 128,140 100,124 72,140 78,108 54,86 86,82" fill="#00f3ff"/>
       </svg>
     `);
-
     const DEFAULT_AWAY_LOGO = `data:image/svg+xml;utf8,` + encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
         <defs>
@@ -1028,7 +984,6 @@
         <polygon points="100,52 114,82 146,86 122,108 128,140 100,124 72,140 78,108 54,86 86,82" fill="#ff007f"/>
       </svg>
     `);
-
     // -------------------------------------------------------------------------
     // INITIAL APPLICATION STATE (9 Quota Roster per Team: 5 Utama, 2 Cadangan, 2 Official)
     // -------------------------------------------------------------------------
@@ -1043,7 +998,6 @@
       { id: 8, role: 'Official 1 (Head Coach)', number: 'HC', name: `Coach ${prefix} Kensuke` },
       { id: 9, role: 'Official 2 (Manager)', number: 'MGR', name: `Mgr. ${prefix} Pratama` },
     ];
-
     const state = {
       roomId: 'ARENA-01',
       timerSeconds: 20 * 60,
@@ -1076,7 +1030,6 @@
       },
       lastOverlayEvent: null
     };
-
     // Load persisted state from localStorage if available
     const STORAGE_KEY = 'FUTSAL_PRO_SCOREBOARD_STATE_V1';
     try {
@@ -1089,7 +1042,6 @@
     } catch (e) {
       console.warn('Could not load saved state:', e);
     }
-
     // -------------------------------------------------------------------------
     // RESPONSIVE 1600x1200 SCALING ENGINE
     // -------------------------------------------------------------------------
@@ -1103,7 +1055,6 @@
     }
     window.addEventListener('resize', fitBroadcastStage);
     fitBroadcastStage();
-
     // -------------------------------------------------------------------------
     // WEB AUDIO SYNTHESIZER (BUZZER HORN, GOAL SIREN, WHISTLE) & TTS
     // -------------------------------------------------------------------------
@@ -1118,7 +1069,6 @@
       }
       return audioCtx;
     }
-
     function playBuzzerSound() {
       try {
         const ctx = getAudioCtx();
@@ -1140,7 +1090,6 @@
         console.warn('Audio play blocked:', e);
       }
     }
-
     function playCardWhistle() {
       try {
         const ctx = getAudioCtx();
@@ -1158,7 +1107,6 @@
         osc.stop(now + 0.42);
       } catch (e) {}
     }
-
     function speakTTS(text) {
       try {
         if ('speechSynthesis' in window) {
@@ -1173,7 +1121,6 @@
         console.warn('TTS error:', e);
       }
     }
-
     // -------------------------------------------------------------------------
     // REAL-TIME MULTI-DEVICE SYNC (BroadcastChannel + Firebase Firestore)
     // -------------------------------------------------------------------------
@@ -1181,7 +1128,6 @@
     let firestoreDb = null;
     let firestoreUnsub = null;
     let isApplyingRemoteUpdate = false;
-
     localChannel.onmessage = (ev) => {
       if (ev.data && ev.data.type === 'STATE_SYNC') {
         isApplyingRemoteUpdate = true;
@@ -1195,17 +1141,14 @@
         isApplyingRemoteUpdate = false;
       }
     };
-
     async function connectFirebase(configJsonStr, roomId) {
       try {
         const firebaseConfig = JSON.parse(configJsonStr);
         const app = initializeApp(firebaseConfig, 'scoreboard-' + Date.now());
         firestoreDb = getFirestore(app);
         state.roomId = (roomId || 'ARENA-01').trim().toUpperCase();
-
         if (firestoreUnsub) firestoreUnsub();
         const roomRef = doc(firestoreDb, 'futsal_scoreboards', state.roomId);
-
         firestoreUnsub = onSnapshot(roomRef, (snap) => {
           if (!snap.exists()) {
             broadcastState();
@@ -1221,7 +1164,6 @@
           }
           isApplyingRemoteUpdate = false;
         });
-
         document.getElementById('sync-label').textContent = 'FIREBASE CLOUD LIVE SYNC';
         document.getElementById('firebase-status-detail').textContent = `Terhubung ke Firestore Room: ${state.roomId}`;
         renderAll();
@@ -1229,18 +1171,15 @@
         alert('Gagal menghubungkan Firebase Config JSON: ' + err.message);
       }
     }
-
     async function broadcastState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch (e) {}
-
       if (!isApplyingRemoteUpdate) {
         localChannel.postMessage({
           type: 'STATE_SYNC',
           payload: JSON.parse(JSON.stringify(state))
         });
-
         if (firestoreDb) {
           try {
             const roomRef = doc(firestoreDb, 'futsal_scoreboards', state.roomId);
@@ -1251,12 +1190,10 @@
         }
       }
     }
-
     // -------------------------------------------------------------------------
     // FULLSCREEN ANIMATED OVERLAYS (LEFT-TO-RIGHT SWEEP)
     // -------------------------------------------------------------------------
     let overlayTimeout = null;
-
     function triggerOverlay(eventPayload) {
       const fullEvent = {
         ...eventPayload,
@@ -1266,7 +1203,6 @@
       showOverlayFromEvent(fullEvent, true);
       broadcastState();
     }
-
     function hideOverlay() {
       const overlay = document.getElementById('broadcast-overlay');
       if (!overlay.classList.contains('active')) return;
@@ -1276,14 +1212,11 @@
         overlay.classList.remove('exit-right');
       }, 550);
     }
-
     function showOverlayFromEvent(ev, playAudio = true) {
       const overlay = document.getElementById('broadcast-overlay');
       const container = document.getElementById('broadcast-overlay-content');
       if (overlayTimeout) clearTimeout(overlayTimeout);
-
       overlay.classList.remove('exit-right');
-
       if (ev.type === 'GOAL') {
         const isHome = ev.team === 'home';
         if (playAudio) {
@@ -1352,7 +1285,6 @@
                 OFFICIAL SUBSTITUTION
               </span>
             </div>
-
             <div class="grid grid-cols-2 gap-8">
               <!-- PEMAIN KELUAR (HIJAU SESUAI SPESIFIKASI) -->
               <div class="p-7 rounded-2xl bg-emerald-950/50 border-2 border-emerald-400/60 flex items-center gap-6">
@@ -1365,7 +1297,6 @@
                   <div class="text-xl font-digital font-bold text-emerald-300 mt-0.5">NOMOR #${ev.outNumber}</div>
                 </div>
               </div>
-
               <!-- PEMAIN MASUK (MERAH SESUAI SPESIFIKASI) -->
               <div class="p-7 rounded-2xl bg-rose-950/50 border-2 border-rose-500/60 flex items-center gap-6">
                 <div class="w-16 h-16 rounded-2xl bg-rose-500/25 border border-rose-400 flex items-center justify-center text-rose-300 font-black text-3xl">
@@ -1396,16 +1327,13 @@
           </div>
         `;
       }
-
       requestAnimationFrame(() => {
         overlay.classList.add('active');
       });
-
       overlayTimeout = setTimeout(() => {
         hideOverlay();
       }, 4500);
     }
-
     // -------------------------------------------------------------------------
     // TIMER COUNTDOWN ENGINE
     // -------------------------------------------------------------------------
@@ -1421,13 +1349,11 @@
         }
       }
     }, 1000);
-
     function formatMMSS(totalSec) {
       const m = Math.floor(totalSec / 60);
       const s = totalSec % 60;
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
-
     function renderTimerOnly() {
       const formatted = formatMMSS(state.timerSeconds);
       const timerEl = document.getElementById('display-timer');
@@ -1442,7 +1368,6 @@
       }
       if (remoteTimerEl) remoteTimerEl.textContent = formatted;
     }
-
     // -------------------------------------------------------------------------
     // UI RENDERING FUNCTIONS
     // -------------------------------------------------------------------------
@@ -1454,7 +1379,6 @@
       const goals = arr.filter((x) => x === 'goal').length;
       const taken = arr.filter((x) => x !== null).length;
       if (scoreEl) scoreEl.textContent = `${goals} / ${taken}`;
-
       container.innerHTML = arr
         .map((status, idx) => {
           let cls = 'bg-slate-900/90 border-white/20 text-slate-500';
@@ -1475,7 +1399,6 @@
           `;
         })
         .join('');
-
       container.querySelectorAll('.pen-dot-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
           const t = btn.getAttribute('data-team');
@@ -1488,21 +1411,18 @@
         });
       });
     }
-
     function populatePlayerSelects() {
       ['home', 'away'].forEach((teamKey) => {
         const roster = state[teamKey].roster;
         const mainSelect = document.getElementById(`select-${teamKey}-player`);
         const outSelect = document.getElementById(`select-${teamKey}-sub-out`);
         const inSelect = document.getElementById(`select-${teamKey}-sub-in`);
-
         const optionsHtml = roster
           .map(
             (p, idx) =>
               `<option value="${idx}">#${p.number} - ${p.name} (${p.role})</option>`
           )
           .join('');
-
         if (mainSelect) {
           const prev = mainSelect.value || '0';
           mainSelect.innerHTML = optionsHtml;
@@ -1520,7 +1440,6 @@
         }
       });
     }
-
     function renderRosterEditor() {
       ['home', 'away'].forEach((teamKey) => {
         const listEl = document.getElementById(`roster-${teamKey}-list`);
@@ -1538,7 +1457,6 @@
           `
           )
           .join('');
-
         listEl.querySelectorAll('.roster-input').forEach((inp) => {
           inp.addEventListener('input', (e) => {
             const t = e.target.getAttribute('data-team');
@@ -1551,7 +1469,6 @@
         });
       });
     }
-
     function renderStatsModalAndEditor() {
       const metrics = [
         { key: 'shots', label: 'SHOTS (TOTAL TEMBAKAN)', isPercent: false },
@@ -1561,7 +1478,6 @@
         { key: 'redCards', label: 'RED CARDS (KARTU MERAH)', isPercent: false },
         { key: 'possession', label: 'BALL POSSESSION (%)', isPercent: true }
       ];
-
       // 1. Render Modal Bars
       const modalBars = document.getElementById('stats-bars-container');
       if (modalBars) {
@@ -1588,7 +1504,6 @@
           })
           .join('');
       }
-
       // 2. Render Remote Editor
       const editorEl = document.getElementById('remote-stats-editor');
       if (editorEl) {
@@ -1614,13 +1529,11 @@
             `;
           })
           .join('');
-
         editorEl.querySelectorAll('.stat-step-btn').forEach((btn) => {
           btn.addEventListener('click', () => {
             const key = btn.getAttribute('data-stat');
             const side = Number(btn.getAttribute('data-side'));
             const delta = Number(btn.getAttribute('data-delta'));
-
             if (key === 'possession') {
               const newVal = Math.max(0, Math.min(100, state.stats.possession[side] + delta));
               state.stats.possession[side] = newVal;
@@ -1634,11 +1547,9 @@
         });
       }
     }
-
     function renderAll() {
       // Room Badge
       document.getElementById('room-badge').textContent = `ROOM: ${state.roomId}`;
-
       // Home & Away Display
       document.getElementById('display-home-name').textContent = state.home.name;
       document.getElementById('display-away-name').textContent = state.away.name;
@@ -1646,13 +1557,11 @@
       document.getElementById('display-away-logo').src = state.away.logo;
       document.getElementById('display-home-score').textContent = state.home.score;
       document.getElementById('display-away-score').textContent = state.away.score;
-
       // Yellow / Red Cards on main display
       document.getElementById('display-home-yc').textContent = state.stats.yellowCards[0];
       document.getElementById('display-home-rc').textContent = state.stats.redCards[0];
       document.getElementById('display-away-yc').textContent = state.stats.yellowCards[1];
       document.getElementById('display-away-rc').textContent = state.stats.redCards[1];
-
       // Timer & status
       renderTimerOnly();
       const dot = document.getElementById('timer-status-dot');
@@ -1666,14 +1575,12 @@
         txt.textContent = 'PAUSED / STANDBY';
         txt.className = 'text-xs font-bold tracking-[0.3em] uppercase text-amber-300';
       }
-
       // Period & Penalty Mode
       document.getElementById('display-period').textContent = state.period;
       document.getElementById('remote-period-preview').textContent = `Babak ${state.period}`;
       const penBanner = document.getElementById('penalty-mode-banner');
       const homePenPanel = document.getElementById('home-penalty-panel');
       const awayPenPanel = document.getElementById('away-penalty-panel');
-
       if (state.penaltyMode) {
         penBanner.classList.remove('hidden');
         homePenPanel.classList.remove('opacity-40');
@@ -1683,10 +1590,8 @@
         homePenPanel.classList.add('opacity-40');
         awayPenPanel.classList.add('opacity-40');
       }
-
       renderPenaltyDots('home', 'display-home-pen-dots', 'display-home-pen-score');
       renderPenaltyDots('away', 'display-away-pen-dots', 'display-away-pen-score');
-
       // Mini Possession & AI Ticker
       const [hPoss, aPoss] = state.stats.possession;
       document.getElementById('mini-poss-home').textContent = `${hPoss}%`;
@@ -1694,7 +1599,6 @@
       document.getElementById('mini-poss-bar-home').style.width = `${hPoss}%`;
       document.getElementById('mini-poss-bar-away').style.width = `${aPoss}%`;
       document.getElementById('ai-ticker-text').textContent = state.aiTicker;
-
       // Remote Titles & Previews
       document.getElementById('remote-home-title').textContent = state.home.name;
       document.getElementById('remote-away-title').textContent = state.away.name;
@@ -1702,7 +1606,6 @@
       document.getElementById('remote-away-score').textContent = state.away.score;
       document.getElementById('input-home-name').value = state.home.name;
       document.getElementById('input-away-name').value = state.away.name;
-
       // Stats Modal Header
       document.getElementById('stats-home-name').textContent = state.home.name;
       document.getElementById('stats-away-name').textContent = state.away.name;
@@ -1710,11 +1613,9 @@
       document.getElementById('stats-away-logo').src = state.away.logo;
       document.getElementById('stats-home-score').textContent = state.home.score;
       document.getElementById('stats-away-score').textContent = state.away.score;
-
       populatePlayerSelects();
       renderStatsModalAndEditor();
     }
-
     // -------------------------------------------------------------------------
     // MATCH ACTIONS (SCORE, PENALTY, CARDS, SUBSTITUTION)
     // -------------------------------------------------------------------------
@@ -1723,7 +1624,6 @@
       const idx = sel ? Number(sel.value) : 0;
       return state[teamKey].roster[idx] || state[teamKey].roster[0];
     }
-
     function changeScore(teamKey, delta, withOverlay = true) {
       const next = Math.max(0, state[teamKey].score + delta);
       state[teamKey].score = next;
@@ -1746,7 +1646,6 @@
       renderAll();
       broadcastState();
     }
-
     function recordPenaltyAttempt(teamKey, result) {
       state.penaltyMode = true;
       const arr = state[teamKey].penalties;
@@ -1759,7 +1658,6 @@
       renderAll();
       broadcastState();
     }
-
     function triggerCardAction(teamKey, cardType) {
       const sideIdx = teamKey === 'home' ? 0 : 1;
       if (cardType === 'YELLOW') {
@@ -1779,7 +1677,6 @@
         playerNumber: p.number
       });
     }
-
     function triggerSubAction(teamKey) {
       const outP = getSelectedPlayer(teamKey, `select-${teamKey}-sub-out`);
       const inP = getSelectedPlayer(teamKey, `select-${teamKey}-sub-in`);
@@ -1794,7 +1691,6 @@
         inNumber: inP.number
       });
     }
-
     // -------------------------------------------------------------------------
     // GOOGLE GEMINI AI GENERATOR (TACTICAL COMMENTARY & SPORTS NEWS)
     // -------------------------------------------------------------------------
@@ -1802,7 +1698,6 @@
       const apiKey = document.getElementById('input-gemini-key').value.trim();
       const outputBox = document.getElementById('ai-output-box');
       outputBox.value = '⏳ Sedang menganalisis data pertandingan real-time...';
-
       const matchSummary = `
         Pertandingan Futsal / Mini Soccer: ${state.home.name} (${state.home.score}) vs (${state.away.score}) ${state.away.name}.
         Babak ke-${state.period}, Sisa Waktu: ${formatMMSS(state.timerSeconds)}.
@@ -1814,12 +1709,10 @@
         - Kartu Merah: ${state.stats.redCards[0]} vs ${state.stats.redCards[1]}
         - Ball Possession: ${state.stats.possession[0]}% vs ${state.stats.possession[1]}%
       `;
-
       const promptText =
         mode === 'tactical'
           ? `Anda adalah komentator taktis futsal profesional. Berikan komentar taktis singkat (3-4 kalimat tajam dan menarik dalam Bahasa Indonesia) berdasarkan data real-time berikut:\n${matchSummary}`
           : `Anda adalah jurnalis berita olahraga nasional. Buat laporan berita pertandingan futsal lengkap dengan judul utama yang dramatis dan 2 paragraf isi berita berdasarkan data berikut:\n${matchSummary}`;
-
       if (!apiKey) {
         const leader =
           state.home.score > state.away.score
@@ -1827,7 +1720,6 @@
             : state.away.score > state.home.score
             ? state.away.name
             : 'Kedua tim imbang';
-
         if (mode === 'tactical') {
           const text = `[ANALISIS TAKTIS AI] Pertarungan sengit di Babak ${state.period}! ${leader} menunjukkan intensitas tinggi dengan penguasaan bola ${state.stats.possession[0]}% berbanding ${state.stats.possession[1]}%. Efektivitas penyelesaian akhir dari ${state.stats.shotsOnTarget[0] + state.stats.shotsOnTarget[1]} total tembakan tepat sasaran menjadi kunci utama jalannya laga ini.`;
           outputBox.value = text;
@@ -1841,7 +1733,6 @@
         broadcastState();
         return;
       }
-
       try {
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
@@ -1865,7 +1756,6 @@
         outputBox.value = 'Error memanggil Google Gemini API: ' + err.message;
       }
     }
-
     // -------------------------------------------------------------------------
     // EVENT LISTENERS & UI CONTROLS
     // -------------------------------------------------------------------------
@@ -1882,7 +1772,6 @@
         el.classList.remove('flex');
       }
     }
-
     // Top Header Buttons
     document.getElementById('btn-open-stats').addEventListener('click', () => toggleModal('modal-stats', true));
     document.getElementById('btn-close-stats').addEventListener('click', () => toggleModal('modal-stats', false));
@@ -1890,29 +1779,23 @@
       toggleModal('modal-remote', false);
       toggleModal('modal-stats', true);
     });
-
     document.getElementById('btn-open-remote').addEventListener('click', () => toggleModal('modal-remote', true));
     document.getElementById('btn-close-remote').addEventListener('click', () => toggleModal('modal-remote', false));
-
     document.getElementById('btn-open-shortcuts').addEventListener('click', () => toggleModal('modal-shortcuts', true));
     document.getElementById('btn-close-shortcuts').addEventListener('click', () => toggleModal('modal-shortcuts', false));
-
     document.getElementById('btn-sound-buzzer').addEventListener('click', playBuzzerSound);
-
     // Remote Tabs Navigation
     document.querySelectorAll('.remote-tab-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const target = btn.getAttribute('data-tab');
         document.querySelectorAll('.remote-tab-pane').forEach((p) => p.classList.add('hidden'));
         document.getElementById(target).classList.remove('hidden');
-
         document.querySelectorAll('.remote-tab-btn').forEach((b) => {
           b.className = 'remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition';
         });
         btn.className = 'remote-tab-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-500 text-slate-950 transition';
       });
     });
-
     // Stage & Remote Timer Controls
     function toggleTimer() {
       state.timerRunning = !state.timerRunning;
@@ -1925,7 +1808,6 @@
       renderAll();
       broadcastState();
     }
-
     document.getElementById('stage-btn-toggle-timer').addEventListener('click', toggleTimer);
     document.getElementById('stage-btn-reset-timer').addEventListener('click', resetTimer);
     document.getElementById('remote-btn-start').addEventListener('click', () => {
@@ -1939,7 +1821,6 @@
       broadcastState();
     });
     document.getElementById('remote-btn-reset').addEventListener('click', resetTimer);
-
     document.getElementById('remote-btn-set-timer').addEventListener('click', () => {
       const m = Math.max(0, Number(document.getElementById('input-timer-min').value) || 0);
       const s = Math.max(0, Math.min(59, Number(document.getElementById('input-timer-sec').value) || 0));
@@ -1949,7 +1830,6 @@
       renderAll();
       broadcastState();
     });
-
     // Period & Penalty Controls
     document.getElementById('remote-period-plus').addEventListener('click', () => {
       state.period = Math.min(9, state.period + 1);
@@ -1972,35 +1852,28 @@
       renderAll();
       broadcastState();
     });
-
     // Buzzer & Overlay Controls
     document.getElementById('remote-btn-buzzer').addEventListener('click', playBuzzerSound);
     document.getElementById('remote-btn-timeup').addEventListener('click', () => triggerOverlay({ type: 'TIMEUP' }));
     document.getElementById('remote-btn-hide-overlay').addEventListener('click', hideOverlay);
     document.getElementById('broadcast-overlay').addEventListener('click', hideOverlay);
-
     // Home & Away Live Buttons
     document.getElementById('remote-home-score-plus').addEventListener('click', () => changeScore('home', 1, true));
     document.getElementById('remote-home-score-minus').addEventListener('click', () => changeScore('home', -1, false));
     document.getElementById('btn-home-goal-overlay').addEventListener('click', () => changeScore('home', 1, true));
-
     document.getElementById('remote-away-score-plus').addEventListener('click', () => changeScore('away', 1, true));
     document.getElementById('remote-away-score-minus').addEventListener('click', () => changeScore('away', -1, false));
     document.getElementById('btn-away-goal-overlay').addEventListener('click', () => changeScore('away', 1, true));
-
     document.getElementById('btn-home-yc').addEventListener('click', () => triggerCardAction('home', 'YELLOW'));
     document.getElementById('btn-home-rc').addEventListener('click', () => triggerCardAction('home', 'RED'));
     document.getElementById('btn-away-yc').addEventListener('click', () => triggerCardAction('away', 'YELLOW'));
     document.getElementById('btn-away-rc').addEventListener('click', () => triggerCardAction('away', 'RED'));
-
     document.getElementById('btn-home-sub').addEventListener('click', () => triggerSubAction('home'));
     document.getElementById('btn-away-sub').addEventListener('click', () => triggerSubAction('away'));
-
     document.getElementById('btn-home-pen-goal').addEventListener('click', () => recordPenaltyAttempt('home', 'goal'));
     document.getElementById('btn-home-pen-miss').addEventListener('click', () => recordPenaltyAttempt('home', 'miss'));
     document.getElementById('btn-away-pen-goal').addEventListener('click', () => recordPenaltyAttempt('away', 'goal'));
     document.getElementById('btn-away-pen-miss').addEventListener('click', () => recordPenaltyAttempt('away', 'miss'));
-
     // Team Name & PNG Logo Upload
     document.getElementById('input-home-name').addEventListener('input', (e) => {
       state.home.name = e.target.value.toUpperCase();
@@ -2012,7 +1885,6 @@
       renderAll();
       broadcastState();
     });
-
     function handleLogoUpload(inputEl, teamKey) {
       inputEl.addEventListener('change', (e) => {
         const file = e.target.files?.[0];
@@ -2028,7 +1900,6 @@
     }
     handleLogoUpload(document.getElementById('input-home-logo'), 'home');
     handleLogoUpload(document.getElementById('input-away-logo'), 'away');
-
     // AI & Firebase Buttons
     document.getElementById('btn-ai-tactical').addEventListener('click', () => runGeminiAI('tactical'));
     document.getElementById('btn-ai-news').addEventListener('click', () => runGeminiAI('news'));
@@ -2044,7 +1915,6 @@
       }
       connectFirebase(cfg, room);
     });
-
     // -------------------------------------------------------------------------
     // 3. KEYBOARD SHORTCUTS ENGINE (NON-CONFLICTING OPERATOR HOTKEYS)
     // -------------------------------------------------------------------------
@@ -2057,10 +1927,8 @@
         }
         return;
       }
-
       const key = e.key;
       const upper = key.toUpperCase();
-
       switch (key) {
         case ' ':
           e.preventDefault();
@@ -2107,7 +1975,6 @@
         default:
           break;
       }
-
       // Letter Hotkeys
       switch (upper) {
         case 'Q':
@@ -2167,7 +2034,6 @@
           break;
       }
     });
-
     // Initialize Icons & Initial Render
     lucide.createIcons();
     renderRosterEditor();
@@ -2175,3 +2041,41 @@
   </script>
 </body>
 </html>
+  githbub code index html
+Working
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRO FUTSAL / MINI SOCCER SCOREBOARD — Premium Dark Neon</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Chakra Petch & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            digital: ['"Chakra Petch"', 'monospace'],
+            display: ['"Outfit"', 'sans-serif'],
+          },
+          colors: {
+            neon: {
+              cyan: '#00f3ff',
+              pink: '#ff007f',
+              green: '#00ff66',
+              amber: '#ffb800',
+              red: '#ff1e42',
+            }
+          }
+        }
+      }
+    };
+  </script>
